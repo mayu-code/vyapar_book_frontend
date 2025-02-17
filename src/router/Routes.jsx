@@ -8,6 +8,8 @@ import { ReportLayout } from "../components/layout/ReportLayout";
 import { TransactionReportDetails } from "../pages/user/reports/TransactionReportDetails";
 import { CashbookReportDetails } from "../pages/user/reports/CashbookReportDetails";
 import { Home } from "../pages/common/home/Home";
+import { CustomerDueDates } from "../pages/user/DeuDates/CustomerDueDates";
+import { ForgotPassword } from "../pages/common/auth/ForgetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +28,10 @@ export const router = createBrowserRouter([
         path: "/login",
         element: <Login />,
       },
+      {
+        path: "/forget-password",
+        element: <ForgotPassword />,
+      },
     ],
   },
   {
@@ -37,18 +43,12 @@ export const router = createBrowserRouter([
         element: <Customers />,
       },
       {
+        path: "/user/deu-dates",
+        element: <CustomerDueDates />,
+      },
+      {
         path: "/user/reports",
-        element: <ReportLayout />,
-        children: [
-          {
-            path: "/user/reports/transactions",
-            element: <TransactionReportDetails />,
-          },
-          {
-            path: "/user/reports/cashbook",
-            element: <CashbookReportDetails />,
-          },
-        ],
+        element: <TransactionReportDetails />,
       },
     ],
   },

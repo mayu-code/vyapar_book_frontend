@@ -1,4 +1,3 @@
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { NavLink, useNavigate } from "react-router-dom";
 import { registerImage } from "../../../assets/RegisterImage";
 import { useEffect, useState } from "react";
@@ -6,8 +5,8 @@ import { validateRegistrationFields } from "./Validator";
 import { Notification } from "../../../components/ui/Notification";
 import { registerUserService } from "../../../service/auth/AuthService";
 import { AuthLoader } from "../../../components/ui/loaders/AuthLoader";
-import app from "../../../firbase";
 import { getUserFromCookie } from "../../../security/cookies/UserCookie";
+import { toast } from "react-toastify";
 
 export const Register = () => {
   const [registerData, setRegisterData] = useState({
@@ -18,28 +17,11 @@ export const Register = () => {
     confirmPassword: "",
   });
 
-  const auth = getAuth(app);
-
-  const registerUser = async (email, password) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      return console.log("User Registered:", userCredential);
-    } catch (error) {
-      return console.error("Registration Error:", error.message);
-    }
-  };
-
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [errors, setErrors] = useState({});
-
-  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     const user = getUserFromCookie();
@@ -47,10 +29,6 @@ export const Register = () => {
       navigate("/user/customers");
     }
   }, []);
-
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -95,7 +73,7 @@ export const Register = () => {
 
     if (Object.keys(errors).length !== 0) {
       const errorMessages = Object.values(errors).join("\n");
-      showNotification(errorMessages, "warning");
+      toast.warn(errorMessages);
       return;
     }
 
@@ -106,8 +84,7 @@ export const Register = () => {
     console.log(res);
 
     if (res?.statusCode === 200) {
-      showNotification(res?.message, "success");
-      registerUser(registerData?.email, registerData?.password);
+      toast.success(res?.message);
       setIsLoading(true);
       setTimeout(() => {
         setRegisterData({
@@ -121,18 +98,12 @@ export const Register = () => {
         navigate("/login");
       }, 2000);
     } else {
-      showNotification(res?.message, "error");
+      toast.success(res?.message);
     }
   };
 
   return (
     <section className="select-none">
-      {notification && (
-        <Notification
-          notification={notification}
-          onClose={() => setNotification(null)}
-        />
-      )}
       {isLoading && (
         <div className="h-screen w-screen fixed flex justify-center items-center bg-black/50">
           <AuthLoader />
@@ -214,7 +185,6 @@ export const Register = () => {
             <div className="flex flex-col gap-5">
               <button
                 type="submit"
-                disabled={notification}
                 className="w-full p-2 border-2 hover:border-red-600 cursor-pointer rounded-md bg-red-400 text-white"
               >
                 Sign Up

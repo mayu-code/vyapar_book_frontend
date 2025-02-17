@@ -8,12 +8,13 @@ import { MdDeleteOutline } from "react-icons/md";
 import { useState } from "react";
 import { EditEntry } from "./EditEntry";
 import { deleteTransactionService } from "../../../service/user/UserService";
+import { toast } from "react-toastify";
 
 export const EntryDetails = ({
+  refetchGetDashboardData,
   customer,
   selectedTransition,
   setIsDetailOpen,
-  showNotification,
   refetchCustomers,
   refetchCustomer,
   refetchTransactions,
@@ -52,11 +53,6 @@ export const EntryDetails = ({
     const day = dateObj.getDate();
     const month = dateObj.toLocaleString("en-US", { month: "short" });
     const year = dateObj.getFullYear();
-    const time = dateObj.toLocaleString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
 
     return `${day} ${month} ${year}`;
   };
@@ -170,9 +166,9 @@ export const EntryDetails = ({
       </motion.div>
       {isUpdateEntryOpen && (
         <EditEntry
+          refetchGetDashboardData={refetchGetDashboardData}
           status={selectedTransition?.amount >= 0 ? true : false}
           setIsDetailOpen={setIsDetailOpen}
-          showNotification={showNotification}
           refetchCustomer={refetchCustomer}
           setIsOpen={setIsUpdateEntryOpen}
           isOpen={isUpdateEntryOpen}
@@ -184,11 +180,11 @@ export const EntryDetails = ({
 
       {showModal && (
         <DeletePopup
+          refetchGetDashboardData={refetchGetDashboardData}
           setShowModal={setShowModal}
           showModal={showModal}
           transitionId={selectedTransition?.id}
           setIsDetailOpen={setIsDetailOpen}
-          showNotification={showNotification}
           refetchCustomers={refetchCustomers}
           refetchCustomer={refetchCustomer}
           refetchTransactions={refetchTransactions}
@@ -199,11 +195,11 @@ export const EntryDetails = ({
 };
 
 const DeletePopup = ({
+  refetchGetDashboardData,
   setShowModal,
   showModal,
   transitionId,
   setIsDetailOpen,
-  showNotification,
   refetchCustomers,
   refetchCustomer,
   refetchTransactions,
@@ -212,9 +208,9 @@ const DeletePopup = ({
     const res = await deleteTransactionService(transitionId);
 
     if (res?.statusCode === 200) {
-      showNotification(res?.message, "success");
+      toast.success(res?.message);
     } else {
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
     }
 
     setShowModal(false);
@@ -222,6 +218,7 @@ const DeletePopup = ({
     refetchCustomers();
     refetchCustomer();
     refetchTransactions();
+    refetchGetDashboardData();
   };
 
   return (

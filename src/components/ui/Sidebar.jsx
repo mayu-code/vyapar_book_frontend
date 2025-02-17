@@ -10,6 +10,9 @@ import {
 } from "../../security/cookies/UserCookie";
 import { CgDanger } from "react-icons/cg";
 import { AuthLoader } from "./loaders/AuthLoader";
+import { TbCalendarDue } from "react-icons/tb";
+import { logoutUserService } from "../../service/auth/AuthService";
+import { toast } from "react-toastify";
 
 export const Sidebar = () => {
   const [showModal, setShowModal] = useState(false);
@@ -27,19 +30,14 @@ export const Sidebar = () => {
       link: "/user/customers",
     },
     {
-      title: "Cashbook",
-      icon: MdOutlineBook,
-      link: "/user/cashbook",
-    },
-    {
-      title: "Staff",
-      icon: FaRegUser,
-      link: "/user/staff",
+      title: "Due Dates",
+      icon: TbCalendarDue,
+      link: "/user/deu-dates",
     },
     {
       title: "Reports",
       icon: HiOutlineClipboardDocumentList,
-      link: "/user/reports/transactions",
+      link: "/user/reports",
     },
   ];
 
@@ -55,16 +53,20 @@ export const Sidebar = () => {
     setHoveredItem(null);
   };
 
-  const handleLogoutClick = () => {
+  const handleLogoutClick = async () => {
     setShowModal(false);
     setIsLoading(true);
-    localStorage.removeItem("token");
-    clearUserCookie();
+    const res = await logoutUserService();
 
-    setTimeout(() => {
-      navigate("/login");
+    if (res?.statusCode === 200) {
       setIsLoading(false);
-    }, 2000);
+      navigate("/login");
+      setTimeout(() => {
+        toast.success(res?.message);
+        localStorage.removeItem("token");
+        clearUserCookie();
+      }, 500);
+    }
   };
 
   return (
@@ -138,7 +140,7 @@ export const Sidebar = () => {
         </div>
       </div>
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/10">
+        <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/10">
           <div className="bg-white p-6 rounded-lg shadow-lg w-90">
             <div className="flex gap-4">
               <div className="bg-red-100 p-2 rounded-full text-red-500">

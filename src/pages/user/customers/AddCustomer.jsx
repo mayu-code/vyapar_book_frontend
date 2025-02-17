@@ -3,12 +3,9 @@ import { motion } from "framer-motion";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { useState } from "react";
 import { addCustomerService } from "../../../service/user/UserService";
+import { toast } from "react-toastify";
 
-export const AddCustomer = ({
-  setIsOpen,
-  showNotification,
-  refetchCustomers,
-}) => {
+export const AddCustomer = ({ setIsOpen, refetchCustomers }) => {
   const [isAddressOpen, setIsAddressOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
 
@@ -35,15 +32,16 @@ export const AddCustomer = ({
     state: "",
   });
 
-  const [billingAddress, setBillingAddress] = useState({
-    buildingNo: "",
-    area: "",
-    pincode: "",
-    city: "",
-    state: "",
-  });
+  // const [billingAddress, setBillingAddress] = useState({
+  //   buildingNo: "",
+  //   area: "",
+  //   pincode: "",
+  //   city: "",
+  //   state: "",
+  // });
 
   const handleSubmit = async () => {
+    // eslint-disable-next-line no-unused-vars
     const { status, ...payload } = customerData;
 
     const finalPayload = { ...payload, address: shippingAddress };
@@ -56,11 +54,11 @@ export const AddCustomer = ({
 
     if (res?.statusCode === 200) {
       setIsOpen(false);
-      showNotification(res?.message, "success");
+      toast.success(res?.message);
       refetchCustomers();
     } else {
       setIsOpen(false);
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
     }
 
     // console.log(billingAddress);
@@ -97,8 +95,8 @@ export const AddCustomer = ({
             setCustomerData={setCustomerData}
             shippingAddress={shippingAddress}
             setShippingAddress={setShippingAddress}
-            billingAddress={billingAddress}
-            setBillingAddress={setBillingAddress}
+            // billingAddress={billingAddress}
+            // setBillingAddress={setBillingAddress}
           />
         </div>
 

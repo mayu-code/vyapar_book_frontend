@@ -1,25 +1,26 @@
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { NavLink, useNavigate } from "react-router-dom";
 import { loginImage } from "../../../assets/LoginImage";
 import { useEffect, useState } from "react";
 import { validateLoginFields } from "./Validator";
-import { Notification } from "../../../components/ui/Notification";
 import { loginUserService } from "../../../service/auth/AuthService";
 import { AuthLoader } from "../../../components/ui/loaders/AuthLoader";
 import { getUserFromCookie } from "../../../security/cookies/UserCookie";
-import app from "../../../firbase";
+// import app from "../../../firbase";
 import { sendFCMTokenService } from "../../../service/user/UserService";
+import { getToken } from "firebase/messaging";
+import { messaging } from "../../../firbase";
+import { toast } from "react-toastify";
+import { getDeviceType } from "../../../utilities/DetectTheDevice";
 
 export const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [notification, setNotification] = useState(null);
-
   const [errors, setErrors] = useState({});
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
+    clientType: getDeviceType(),
   });
 
   useEffect(() => {
@@ -29,26 +30,37 @@ export const Login = () => {
     }
   }, []);
 
-  const auth = getAuth(app);
-
-  const loginUser = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      console.log("User logged in:", userCredential);
-      return userCredential?._tokenResponse?.idToken;
-    } catch (error) {
-      console.error("Login error:", error.message);
-      return null;
+  const generateFCMToken = async () => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
     }
-  };
 
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
+    // Request permission and get token
+    try {
+      const permission = await navigator.permissions.query({
+        name: "notifications",
+      });
+      if (permission.state === "granted") {
+        const token = await getToken(messaging, {
+          vapidKey:
+            "BFY5hw_BwpFQLlbuFLnnr8gH6Sl-j3ZqlGfSYoEeWZXMrBcmVW61HXPr-KAU_yvoVA0JpPKyWiinq-BSdrkAOBA",
+        });
+        if (token) {
+          // console.log("FCM Token:", token);
+          await sendFCMTokenService(token);
+        } else {
+          console.warn("No token received.");
+        }
+      } else {
+        console.warn("Notification permission denied.");
+      }
+    } catch (error) {
+      console.error("FCM Permission Error:", error);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -81,19 +93,21 @@ export const Login = () => {
 
     if (Object.keys(errors).length !== 0) {
       const errorMessages = Object.values(errors).join("\n");
-      showNotification(errorMessages, "warning");
+      // showNotification(errorMessages, "warning");
+      toast.warn(errorMessages);
       return;
     }
 
     setErrors({});
+
+    console.log(loginData);
 
     const res = await loginUserService(loginData);
 
     if (res?.statusCode === 200) {
       setIsLoading(true);
       storeToken(res?.token);
-      showNotification(res?.message, "success");
-      const token = await loginUser(loginData?.email, loginData?.password);
+      toast.success(res?.message);
 
       setTimeout(() => {
         setLoginData({
@@ -101,23 +115,16 @@ export const Login = () => {
           password: "",
         });
         setIsLoading(false);
-        sendFCMTokenService(token);
+        generateFCMToken();
         navigate("/user/customers");
       }, 2000);
     } else {
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
     }
-    // console.log("Login Data:", loginData);
   };
 
   return (
     <section>
-      {notification && (
-        <Notification
-          notification={notification}
-          onClose={() => setNotification(null)}
-        />
-      )}
       {isLoading && (
         <div className="h-screen w-screen fixed flex justify-center items-center bg-black/50">
           <AuthLoader />
@@ -177,6 +184,15 @@ export const Login = () => {
                 {errors.password && (
                   <p className="text-red-500 text-sm">{errors.password}</p>
                 )}
+              </div>
+
+              <div className="-mt-4 flex justify-end">
+                <NavLink
+                  to="/forget-password"
+                  className="text-gray-700 hover:text-blue-700 cursor-pointer"
+                >
+                  Forget Password?
+                </NavLink>
               </div>
 
               <div className="flex flex-col gap-5">

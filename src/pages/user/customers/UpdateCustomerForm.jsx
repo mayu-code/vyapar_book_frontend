@@ -11,8 +11,8 @@ export const UpdateCustomerForm = ({
   setCustomerData,
   shippingAddress,
   setShippingAddress,
-  billingAddress,
-  setBillingAddress,
+  // billingAddress,
+  // setBillingAddress,
 }) => {
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
@@ -27,10 +27,10 @@ export const UpdateCustomerForm = ({
     const { name, value } = e.target;
     setShippingAddress((prevData) => ({ ...prevData, [name]: value }));
   };
-  const handleBillingChange = (e) => {
-    const { name, value } = e.target;
-    setBillingAddress((prevData) => ({ ...prevData, [name]: value }));
-  };
+  // const handleBillingChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setBillingAddress((prevData) => ({ ...prevData, [name]: value }));
+  // };
 
   const handleCheckboxChange = (e) => {
     setIsChecked(e.target.checked);
@@ -122,7 +122,7 @@ export const UpdateCustomerForm = ({
             </div>
 
             <div className="flex flex-col gap-3">
-              <h5 className="">Shipping Address</h5>
+              <h5 className="">Address</h5>
 
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
@@ -211,7 +211,7 @@ export const UpdateCustomerForm = ({
               </div>
             </div>
 
-            <div className="flex gap-2 items-center">
+            {/* <div className="flex gap-2 items-center">
               <label className="flex gap-2 cursor-pointer">
                 <div className="flex justify-center items-center">
                   <input
@@ -225,9 +225,9 @@ export const UpdateCustomerForm = ({
                   Shipping address same as billing address
                 </p>
               </label>
-            </div>
+            </div> */}
 
-            {!isChecked && (
+            {/* {!isChecked && (
               <div className="flex flex-col gap-3">
                 <h5 className="">Billing Address</h5>
 
@@ -317,7 +317,7 @@ export const UpdateCustomerForm = ({
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>

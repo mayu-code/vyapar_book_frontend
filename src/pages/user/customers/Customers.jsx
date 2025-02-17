@@ -3,7 +3,6 @@ import { CustomerInfo } from "../customers/CustomerInfo";
 import { useState } from "react";
 import { LuUsers } from "react-icons/lu";
 import { AddCustomer } from "./AddCustomer";
-import { UserNotification } from "../../../components/ui/UserNotification";
 import { useQuery } from "@tanstack/react-query";
 import {
   getAllCustomersService,
@@ -13,11 +12,6 @@ import {
 export const Customers = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
-  const [notification, setNotification] = useState(null);
-
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-  };
 
   const paramReq = {
     query: undefined,
@@ -40,7 +34,7 @@ export const Customers = () => {
     },
   });
 
-  const { data: dashboardData, isLoading: isDashboardDataLoading } = useQuery({
+  const { data: dashboardData, refetch: refetchGetDashboardData } = useQuery({
     queryKey: ["dashboardData"],
     queryFn: async () => {
       return await getDashboardService();
@@ -49,12 +43,6 @@ export const Customers = () => {
 
   return (
     <section className="grid grid-cols-2 h-screen">
-      {notification && (
-        <UserNotification
-          notification={notification}
-          onClose={() => setNotification(null)}
-        />
-      )}
       <CustomerList
         paramReq={paramReq}
         filter={filter}
@@ -71,7 +59,7 @@ export const Customers = () => {
       />
       {selectedCustomerId ? (
         <CustomerInfo
-          showNotification={showNotification}
+          refetchGetDashboardData={refetchGetDashboardData}
           setSelectedCustomerId={setSelectedCustomerId}
           customerId={selectedCustomerId}
           refetchCustomers={refetchCustomers}
@@ -88,7 +76,6 @@ export const Customers = () => {
       {isAddCustomerOpen && (
         <AddCustomer
           setIsOpen={setIsAddCustomerOpen}
-          showNotification={showNotification}
           refetchCustomers={refetchCustomers}
         />
       )}

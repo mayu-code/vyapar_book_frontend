@@ -118,6 +118,14 @@ export const updateTransaction = (token, updateReq) => {
   });
 };
 
+export const setDueDate = (token, deuDateReq) => {
+  return user.post(`/setDueDate`, deuDateReq, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const deleteTransaction = (token, transactionId) => {
   return user.delete(`/deleteTransaction/${transactionId}`, {
     headers: {
@@ -130,6 +138,42 @@ export const deleteCustomer = (token, customerId) => {
   return user.delete(`/deleteCustomer/${customerId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getCustomersOnDueDate = (token) => {
+  return user.get(`/getCustomersOnDueDate`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const downloadPdf = (token, customerId) => {
+  return user.get(`/downloadReport`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    responseType: "blob",
+    params: {
+      customerId: customerId,
+      startDate: undefined,
+      endDate: undefined,
+    },
+  });
+};
+
+export const downloadExcel = (token, paramReq) => {
+  return user.get(`/downloadExcelReport`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    responseType: "blob",
+    params: {
+      query: paramReq.query,
+      startDate: paramReq.startDate,
+      endDate: paramReq.endDate,
     },
   });
 };

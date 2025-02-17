@@ -30,7 +30,7 @@ export const Header = () => {
 
   return (
     <div className="bg-gray-200 sticky top-0 z-50 w-full">
-      <div className="w-[100%] md:w-[95%] mx-auto">
+      <div className="w-[100%] mx-auto">
         <div className="flex py-2 h-[5.5rem] justify-between">
           <NavLink to="/">
             <div className="flex justify-center items-end gap-2">
@@ -44,7 +44,7 @@ export const Header = () => {
               </div>
             </div>
           </NavLink>
-          <div className="hidden md:flex justify-center  items-center">
+          <div className="hidden md:flex justify-center mr-5  items-center">
             <ul className="flex space-x-5">
               {!test && (
                 <>

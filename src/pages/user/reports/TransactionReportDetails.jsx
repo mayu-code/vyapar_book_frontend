@@ -6,42 +6,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import { TransactionsTable } from "./TransactionsTable";
 import { useQuery } from "@tanstack/react-query";
 import {
-  getTransactionReportService,
+  downloadExcelService,
   getTransactionsService,
 } from "../../../service/user/UserService";
-import { all } from "axios";
 import { useLocation } from "react-router-dom";
+import { RiFileExcel2Line } from "react-icons/ri";
 
 export const TransactionReportDetails = () => {
   const location = useLocation();
   const customerName = location.state?.customerName;
-
-  const { data: transitionData, isLoading: isTransitionDataLoading } = useQuery(
-    {
-      queryKey: ["transitionData"],
-      queryFn: async () => {
-        return await getTransactionReportService();
-      },
-    }
-  );
-
-  const cards = [
-    {
-      id: 1,
-      amount: -transitionData?.youGave,
-      status: "You Gave",
-    },
-    {
-      id: 2,
-      amount: transitionData?.youGot,
-      status: "You Got",
-    },
-    {
-      id: 3,
-      amount: transitionData?.netBalance,
-      status: "Net Balance",
-    },
-  ];
 
   const formatDateTime = (dateObj) => {
     const now = dateObj || new Date();
@@ -89,6 +62,32 @@ export const TransactionReportDetails = () => {
     },
   });
 
+  const positiveSum = allTransactions
+    ?.filter((transaction) => transaction.amount > 0)
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+  const negativeSum = allTransactions
+    ?.filter((transaction) => transaction.amount < 0)
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+  const cards = [
+    {
+      id: 1,
+      amount: positiveSum,
+      status: "You Gave",
+    },
+    {
+      id: 2,
+      amount: negativeSum === 0 ? 0 : -negativeSum,
+      status: "You Got",
+    },
+    {
+      id: 3,
+      amount: positiveSum + negativeSum,
+      status: "Net Balance",
+    },
+  ];
+
   const selectColor = (status) => {
     switch (status) {
       case "You Gave":
@@ -113,22 +112,61 @@ export const TransactionReportDetails = () => {
     setFilter((prev) => ({ ...prev, query: value }));
   };
 
+  const handleDownload = async () => {
+    const response = await downloadExcelService(filter);
+
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      })
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "customers_transactions.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   return (
     <section className="h-screen overflow-y-auto">
-      <div className="p-3 flex gap-4">
-        <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-700">
-          <span className="text-white text-xl font-medium">
-            <GrTransaction />
-          </span>
+      <div className="p-3 flex justify-between">
+        <div className="flex gap-4">
+          <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-700">
+            <span className="text-white text-xl font-medium">
+              <GrTransaction />
+            </span>
+          </div>
+
+          <div className="flex justify-center items-center">
+            <p className="font-semibold text-lg">Transactions Reports</p>
+          </div>
         </div>
 
-        <div className="flex justify-center items-center">
-          <p className="font-semibold text-lg">Transactions Reports</p>
+        <div className="flex gap-5 justify-center items-center pr-5">
+          {/* <div
+            onClick={handlePdfDownload}
+            className="flex gap-2 border border-gray-400 p-2 rounded-md text-gray-600 cursor-pointer"
+          >
+            <p className="flex justify-center items-center">
+              <FaRegFilePdf />
+            </p>
+            <p>Download PDF</p>
+          </div> */}
+          <div
+            onClick={handleDownload}
+            className="flex gap-2 border border-gray-400 p-3 rounded-md text-gray-600 cursor-pointer"
+          >
+            <p className="flex justify-center items-center">
+              <RiFileExcel2Line />
+            </p>
+            <p className="flex justify-center items-center">Download Excel</p>
+          </div>
         </div>
       </div>
       <hr className="text-gray-300 mt-3" />
 
-      <div className="flex gap-4 py-3 px-6">
+      <div className="flex gap-4 py-3 px-6 mt-2">
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className=" text-gray-700">
             Customer Name
@@ -216,7 +254,11 @@ export const TransactionReportDetails = () => {
                 <p
                   className={` font-medium ${
                     card.status === "Net Balance"
-                      ? "text-green-700"
+                      ? card.amount > 0
+                        ? "text-green-700"
+                        : card?.amount < 0
+                        ? "text-red-700"
+                        : "text-gray-800"
                       : "text-gray-800"
                   } `}
                 >

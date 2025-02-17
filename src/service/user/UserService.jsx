@@ -3,17 +3,25 @@ import {
   addTransaction,
   deleteCustomer,
   deleteTransaction,
+  downloadExcel,
+  downloadPdf,
   getAllCustomers,
   getCustomerById,
+  getCustomersOnDueDate,
   getCustomersTransaction,
   getDashboard,
   getTransactionReport,
   getTransactions,
   getUserByToken,
   sendFCMToken,
+  setDueDate,
   updateCustomer,
   updateTransaction,
 } from "../../api/user/UserApi";
+
+const errorMessage = {
+  message: "Something went wrong !!",
+};
 
 export const getUserByTokenService = async (token) => {
   try {
@@ -37,7 +45,7 @@ export const addCustomerService = async (addReq) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
   }
 };
 
@@ -50,7 +58,7 @@ export const sendFCMTokenService = async (firebaseToken) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
   }
 };
 
@@ -64,7 +72,21 @@ export const updateCustomerService = async (updateReq) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
+  }
+};
+
+export const setDueDateService = async (deuDateReq) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await setDueDate(token, deuDateReq);
+    // console.log(res);
+
+    return res?.data;
+  } catch (error) {
+    console.log(error);
+    return errorMessage;
   }
 };
 
@@ -77,6 +99,31 @@ export const getAllCustomersService = async (paramReq) => {
   } catch (error) {
     console.log(error);
     return [];
+  }
+};
+
+export const downloadPdfService = async (customerId) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await downloadPdf(token, customerId);
+    // console.log(res);
+    return res;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const downloadExcelService = async (paramReq) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await downloadExcel(token, paramReq);
+    return res;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 };
 
@@ -116,6 +163,18 @@ export const getTransactionsService = async (req) => {
   }
 };
 
+export const getCustomersOnDueDateService = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await getCustomersOnDueDate(token);
+    return res?.data?.data;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
 export const getCustomerByIdService = async (customerId) => {
   try {
     const token = localStorage.getItem("token");
@@ -148,7 +207,7 @@ export const addTransactionService = async (addReq) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
   }
 };
 
@@ -160,7 +219,7 @@ export const updateTransactionService = async (updateReq) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
   }
 };
 
@@ -172,7 +231,7 @@ export const deleteTransactionService = async (transactionId) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
   }
 };
 
@@ -184,6 +243,6 @@ export const deleteCustomerService = async (customerId) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return error?.response?.data || error;
+    return errorMessage;
   }
 };

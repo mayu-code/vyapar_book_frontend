@@ -1,24 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { BsGear } from "react-icons/bs";
-import { LuClipboardList } from "react-icons/lu";
+import { LuAlarmClock, LuClipboardList } from "react-icons/lu";
 import {
+  downloadPdfService,
   getCustomerByIdService,
   getCustomersTransactionService,
+  setDueDateService,
 } from "../../../service/user/UserService";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AddEntry } from "./AddEntry";
 import { IoBookOutline } from "react-icons/io5";
 import { HorizontalLoader } from "../../../components/ui/loaders/HorizontalLoader";
 import { EntryDetails } from "./EntryDetails";
 import { CustomerDetail } from "./CustomerDetail";
 import { useNavigate } from "react-router-dom";
+import { FaRegFilePdf } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import useOutsideClick from "../../../components/hooks/useOutsideClick";
 
 export const CustomerInfo = ({
+  refetchGetDashboardData,
   customerId,
   setSelectedCustomerId,
   refetchCustomers,
-  showNotification,
-  isCustomersLoading,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState(true);
@@ -27,6 +31,48 @@ export const CustomerInfo = ({
   const [isCustomerDetailOpen, setIsCustomerDetailOpen] = useState(false);
 
   const navigate = useNavigate();
+
+  const {
+    data: customer,
+    isLoading: isCustomerLoading,
+    refetch: refetchCustomer,
+  } = useQuery({
+    queryKey: ["customer", customerId],
+    queryFn: async () => {
+      return await getCustomerByIdService(customerId);
+    },
+  });
+
+  const date = customer?.dueDate ? new Date(customer.dueDate) : new Date();
+
+  const [selectedDate, setSelectedDate] = useState(date.toString());
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const datePickerRef = useRef(null);
+
+  useOutsideClick(datePickerRef, () => setShowDatePicker(false));
+
+  const handleDateChange = async (date) => {
+    if (!date) return;
+    setSelectedDate(date);
+
+    const formatted = date ? date.toISOString().split("T")[0] : "";
+
+    const updatedDueDate = {
+      id: customer?.id,
+      dueDate: formatted,
+    };
+
+    const res = await setDueDateService(updatedDueDate);
+
+    if (res?.statusCode === 200) {
+      // console.log("success");
+      refetchCustomer();
+      refetchCustomers();
+    }
+
+    setShowDatePicker(false);
+  };
 
   const formatToReadableDate = (dateString) => {
     const dateObj = new Date(dateString.replace(" ", "T"));
@@ -43,16 +89,21 @@ export const CustomerInfo = ({
     return `${day} ${month} ${year} ${time}`;
   };
 
-  const {
-    data: customer,
-    isLoading: isCustomerLoading,
-    refetch: refetchCustomer,
-  } = useQuery({
-    queryKey: ["customer", customerId],
-    queryFn: async () => {
-      return await getCustomerByIdService(customerId);
-    },
-  });
+  // Function to convert yyyy-mm-dd to "DD MMM YYYY"
+  const formatDueDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+    if (isNaN(date)) return "Invalid Date";
+
+    return date
+      .toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+      .replace(",", "");
+  };
 
   const {
     data: customersTransactions,
@@ -70,8 +121,6 @@ export const CustomerInfo = ({
     else if (amount < 0) return "text-red-500";
     else return "text-gray-600";
   };
-
-  // console.log(customer);
 
   const handleButtonClick = (status) => {
     setStatus(status);
@@ -91,9 +140,26 @@ export const CustomerInfo = ({
     setSelectedTransition(transition);
   };
 
+  const handleDownload = async () => {
+    const response = await downloadPdfService(customerId);
+
+    const url = window.URL.createObjectURL(
+      new Blob([response?.data], { type: "application/pdf" })
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `customer_transactions_${customerId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   return (
-    <div className="bg-white w-[94%] mx-auto flex flex-col gap-5">
-      <div className="flex  mt-3  justify-between">
+    <div
+      className="bg-white w-[94%] mx-auto flex flex-col gap-5"
+      ref={datePickerRef}
+    >
+      <div className="flex  mt-3  justify-between" ref={datePickerRef}>
         <div className="flex gap-4">
           <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
             <span className="text-blue-600 text-xl font-medium">
@@ -109,8 +175,17 @@ export const CustomerInfo = ({
 
         <div className="flex gap-4">
           <div
+            onClick={handleDownload}
+            className="flex gap-2 border border-gray-400 p-2 rounded-md text-gray-600 cursor-pointer"
+          >
+            <p className="flex justify-center items-center">
+              <FaRegFilePdf />
+            </p>
+            <p className="flex justify-center items-center">Download PDF</p>
+          </div>
+          <div
             onClick={() =>
-              navigate("/user/reports/transactions", {
+              navigate("/user/reports", {
                 state: { customerName: customer?.name },
               })
             }
@@ -129,8 +204,50 @@ export const CustomerInfo = ({
           </div>
         </div>
       </div>
-      <div className="flex justify-end">
-        <div className="flex flex-col">
+      <div className="flex justify-between" ref={datePickerRef}>
+        {customer?.dueDate ? (
+          <div className="flex flex-col gap-1" ref={datePickerRef}>
+            <div className="flex gap-2 text-gray-600">
+              <p className="flex justify-center items-center">
+                <LuAlarmClock size={20} />
+              </p>
+              <p className="flex justify-center items-center font-medium">
+                Due Date:
+              </p>
+            </div>
+            <div className="flex gap-4 text-gray-700 select-none">
+              <p className="flex justify-center items-center">
+                {formatDueDate(customer?.dueDate)}
+              </p>
+              <p
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="px-2 border border-blue-300 text-sm cursor-pointer hover:border-blue-400 rounded-md text-blue-600"
+              >
+                Edit
+              </p>
+              {showDatePicker && (
+                <div className="absolute top-36">
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={handleDateChange}
+                    onKeyDown={(e) => e.preventDefault()}
+                    dateFormat="dd/MM/yyyy"
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={50}
+                    shouldCloseOnSelect={true}
+                    inline
+                    minDate={new Date()}
+                    calendarClassName="border border-gray-300 rounded-md shadow-md"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div></div>
+        )}
+        <div className="flex flex-col" ref={datePickerRef}>
           <p className="uppercase text-center text-gray-600">Net Balance:</p>
           <div className="flex gap-2">
             <p className="font-medium text-gray-700">
@@ -142,7 +259,7 @@ export const CustomerInfo = ({
           </div>
         </div>
       </div>
-      <div>
+      <div ref={datePickerRef}>
         <div className="grid grid-cols-4 gap-5 text-gray-500 uppercase">
           <p className="col-span-2">Entries</p>
           <p>You Gave</p>
@@ -212,7 +329,7 @@ export const CustomerInfo = ({
       </div>
       {isOpen && (
         <AddEntry
-          showNotification={showNotification}
+          refetchGetDashboardData={refetchGetDashboardData}
           refetchCustomers={refetchCustomers}
           refetchTransactions={refetchTransactions}
           refetchCustomer={refetchCustomer}
@@ -223,7 +340,7 @@ export const CustomerInfo = ({
       )}
       {isDetailOpen && (
         <EntryDetails
-          showNotification={showNotification}
+          refetchGetDashboardData={refetchGetDashboardData}
           refetchCustomers={refetchCustomers}
           refetchTransactions={refetchTransactions}
           refetchCustomer={refetchCustomer}
@@ -237,7 +354,6 @@ export const CustomerInfo = ({
           setIsDetailOpen={setIsCustomerDetailOpen}
           setSelectedCustomerId={setSelectedCustomerId}
           customer={customer}
-          showNotification={showNotification}
           refetchTransactions={refetchTransactions}
           refetchCustomer={refetchCustomer}
           refetchCustomers={refetchCustomers}

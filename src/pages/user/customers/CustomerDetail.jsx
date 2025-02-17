@@ -10,12 +10,12 @@ import { UpdateCustomer } from "./UpdateCustomer";
 import { LuUserRound } from "react-icons/lu";
 import { deleteCustomerService } from "../../../service/user/UserService";
 import { CgDanger } from "react-icons/cg";
+import { toast } from "react-toastify";
 
 export const CustomerDetail = ({
   setIsDetailOpen,
   setSelectedCustomerId,
   customer,
-  showNotification,
   refetchCustomers,
   refetchCustomer,
   refetchTransactions,
@@ -25,6 +25,7 @@ export const CustomerDetail = ({
 
   const formattedAddress = Object.entries(customer?.address)
     .filter(([key, value]) => key !== "id" && value)
+    // eslint-disable-next-line no-unused-vars
     .map(([_, value]) => value)
     .join(", ");
 
@@ -46,14 +47,14 @@ export const CustomerDetail = ({
     },
     {
       icon: <IoLocationOutline size={20} />,
-      name: "Shipping Address",
+      name: "Address",
       value: formattedAddress,
     },
-    {
-      icon: <IoLocationOutline size={20} />,
-      name: "Billing Address",
-      value: "",
-    },
+    // {
+    //   icon: <IoLocationOutline size={20} />,
+    //   name: "Billing Address",
+    //   value: "",
+    // },
   ];
 
   //   console.log(customer);
@@ -138,7 +139,6 @@ export const CustomerDetail = ({
           customer={customer}
           setIsOpen={setIsOpen}
           setIsDetailOpen={setIsDetailOpen}
-          showNotification={showNotification}
           refetchCustomers={refetchCustomers}
           refetchTransactions={refetchTransactions}
           refetchCustomer={refetchCustomer}
@@ -152,7 +152,6 @@ export const CustomerDetail = ({
           setSelectedCustomerId={setSelectedCustomerId}
           customerId={customer?.id}
           setIsDetailOpen={setIsDetailOpen}
-          showNotification={showNotification}
           refetchCustomers={refetchCustomers}
           refetchCustomer={refetchCustomer}
           refetchTransactions={refetchTransactions}
@@ -168,7 +167,6 @@ const DeletePopup = ({
   setSelectedCustomerId,
   customerId,
   setIsDetailOpen,
-  showNotification,
   refetchCustomers,
   refetchCustomer,
   refetchTransactions,
@@ -177,9 +175,9 @@ const DeletePopup = ({
     const res = await deleteCustomerService(customerId);
 
     if (res?.statusCode === 200) {
-      showNotification(res?.message, "success");
+      toast.success(res?.message);
     } else {
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
     }
 
     setShowModal(false);

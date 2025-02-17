@@ -1,14 +1,13 @@
-import { RxCross1 } from "react-icons/rx";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { UpdateCustomerForm } from "./UpdateCustomerForm";
 import { FaAngleLeft } from "react-icons/fa6";
 import { updateCustomerService } from "../../../service/user/UserService";
+import { toast } from "react-toastify";
 
 export const UpdateCustomer = ({
   setIsOpen,
   customer,
-  showNotification,
   refetchCustomers,
   refetchCustomer,
   refetchTransactions,
@@ -35,13 +34,13 @@ export const UpdateCustomer = ({
     state: customer?.address?.state,
   });
 
-  const [billingAddress, setBillingAddress] = useState({
-    buildingNo: "",
-    area: "",
-    pincode: "",
-    city: "",
-    state: "",
-  });
+  // const [billingAddress, setBillingAddress] = useState({
+  //   buildingNo: "",
+  //   area: "",
+  //   pincode: "",
+  //   city: "",
+  //   state: "",
+  // });
 
   const handleSubmit = async () => {
     const finalPayload = { ...customerData, address: shippingAddress };
@@ -53,9 +52,9 @@ export const UpdateCustomer = ({
     const res = await updateCustomerService(finalPayload);
 
     if (res?.statusCode === 200) {
-      showNotification(res?.message, "success");
+      toast.success(res?.message);
     } else {
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
     }
 
     setIsOpen(false);
@@ -98,8 +97,8 @@ export const UpdateCustomer = ({
             setCustomerData={setCustomerData}
             shippingAddress={shippingAddress}
             setShippingAddress={setShippingAddress}
-            billingAddress={billingAddress}
-            setBillingAddress={setBillingAddress}
+            // billingAddress={billingAddress}
+            // setBillingAddress={setBillingAddress}
           />
         </div>
 

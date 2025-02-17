@@ -4,9 +4,10 @@ import DatePicker from "react-datepicker";
 import { CiCalendarDate } from "react-icons/ci";
 import { RxCross1 } from "react-icons/rx";
 import { addTransactionService } from "../../../service/user/UserService";
+import { toast } from "react-toastify";
 
 export const AddEntry = ({
-  showNotification,
+  refetchGetDashboardData,
   refetchCustomers,
   setIsOpen,
   status,
@@ -62,19 +63,17 @@ export const AddEntry = ({
     // alert(res?.message);
 
     if (res?.statusCode === 200) {
-      showNotification(res?.message, "success");
+      toast.success(res?.message);
 
       setIsOpen(false);
-      refetchCustomers();
-      refetchCustomer();
-      refetchTransactions();
     } else {
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
       setIsOpen(false);
-      refetchCustomers();
-      refetchCustomer();
-      refetchTransactions();
     }
+    refetchCustomers();
+    refetchCustomer();
+    refetchTransactions();
+    refetchGetDashboardData();
   };
 
   const handleInputChange = (e) => {

@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 export const AddCustomerForm = ({
@@ -11,8 +10,8 @@ export const AddCustomerForm = ({
   setCustomerData,
   shippingAddress,
   setShippingAddress,
-  billingAddress,
-  setBillingAddress,
+  // billingAddress,
+  // setBillingAddress,
 }) => {
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
@@ -31,14 +30,14 @@ export const AddCustomerForm = ({
     const { name, value } = e.target;
     setShippingAddress((prevData) => ({ ...prevData, [name]: value }));
   };
-  const handleBillingChange = (e) => {
-    const { name, value } = e.target;
-    setBillingAddress((prevData) => ({ ...prevData, [name]: value }));
-  };
+  // const handleBillingChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setBillingAddress((prevData) => ({ ...prevData, [name]: value }));
+  // };
 
-  const handleCheckboxChange = (e) => {
-    setIsChecked(e.target.checked);
-  };
+  // const handleCheckboxChange = (e) => {
+  //   setIsChecked(e.target.checked);
+  // };
 
   return (
     <div className="flex flex-col mt-2 gap-5">
@@ -125,10 +124,16 @@ export const AddCustomerForm = ({
             name="status"
             value={customerData.status}
             onChange={handleCustomerDataChange}
-            className={`focus:outline-none cursor-pointer px-2 text-green-500`}
+            className={`focus:outline-none cursor-pointer px-2 ${
+              customerData?.got ? "text-green-600" : "text-red-600"
+            }`}
           >
-            <option value="gave">You Gave</option>
-            <option value="got">You Got</option>
+            <option value="gave" className="text-red-600">
+              You Gave
+            </option>
+            <option value="got" className="text-green-600">
+              You Got
+            </option>
           </select>
         </div>
       </div>
@@ -160,7 +165,7 @@ export const AddCustomerForm = ({
             </div>
 
             <div className="flex flex-col gap-3">
-              <h5 className="">Shipping Address</h5>
+              <h5 className="">Address</h5>
 
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
@@ -249,7 +254,7 @@ export const AddCustomerForm = ({
               </div>
             </div>
 
-            <div className="flex gap-2 items-center">
+            {/* <div className="flex gap-2 items-center">
               <label className="flex gap-2 cursor-pointer">
                 <div className="flex justify-center items-center">
                   <input
@@ -263,9 +268,9 @@ export const AddCustomerForm = ({
                   Shipping address same as billing address
                 </p>
               </label>
-            </div>
+            </div> */}
 
-            {!isChecked && (
+            {/* {!isChecked && (
               <div className="flex flex-col gap-3">
                 <h5 className="">Billing Address</h5>
 
@@ -355,7 +360,7 @@ export const AddCustomerForm = ({
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>

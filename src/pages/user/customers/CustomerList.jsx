@@ -7,11 +7,9 @@ import { useNavigate } from "react-router-dom";
 
 export const CustomerList = ({
   paramReq,
-  filter,
   setFilter,
   searchQuery,
   setSearchQuery,
-  isOpen,
   setIsOpen,
   setSelectedCustomerId,
   selectedCustomerId,
@@ -94,7 +92,7 @@ export const CustomerList = ({
   };
 
   const handleReportClick = () => {
-    navigate("/user/reports/transactions");
+    navigate("/user/reports");
   };
 
   // console.log(customers);
@@ -167,8 +165,8 @@ export const CustomerList = ({
               onChange={handleFilterChange}
             >
               <option value="">All</option>
-              <option value="gave">You'll Give</option>
-              <option value="get">You'll Get</option>
+              <option value="gave">You&apos;ll Give</option>
+              <option value="get">You&apos;ll Get</option>
               <option value="settle">Settled</option>
             </select>
           </div>
@@ -240,7 +238,7 @@ export const CustomerList = ({
           )}
         </div>
 
-        <div className="flex justify-center items-center p-2">
+        <div className="flex justify-center items-center p-2 bg-transparent/50">
           <div
             onClick={() => setIsOpen(true)}
             className="flex gap-3 py-2 px-4 text-white hover:bg-blue-700 cursor-pointer bg-blue-600 rounded-md"

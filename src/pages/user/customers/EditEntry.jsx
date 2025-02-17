@@ -1,18 +1,15 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { CiCalendarDate } from "react-icons/ci";
-import { RxCross1 } from "react-icons/rx";
-import {
-  addTransactionService,
-  updateTransactionService,
-} from "../../../service/user/UserService";
+import { updateTransactionService } from "../../../service/user/UserService";
 import { FaAngleLeft } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 export const EditEntry = ({
+  refetchGetDashboardData,
   status,
   setIsDetailOpen,
-  showNotification,
   refetchCustomers,
   setIsOpen,
   transition,
@@ -60,20 +57,22 @@ export const EditEntry = ({
     if (res?.statusCode === 200) {
       setIsOpen(false);
       setIsDetailOpen(false);
-      showNotification(res?.message, "success");
+      toast.success(res?.message);
       setTimeout(() => {
         refetchCustomers();
         refetchCustomer();
         refetchTransactions();
+        refetchGetDashboardData();
       }, 100);
     } else {
       setIsOpen(false);
       setIsDetailOpen(false);
-      showNotification(res?.message, "error");
+      toast.error(res?.message);
       setTimeout(() => {
         refetchCustomers();
         refetchCustomer();
         refetchTransactions();
+        refetchGetDashboardData();
       }, 100);
     }
   };

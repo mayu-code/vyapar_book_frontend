@@ -8,11 +8,6 @@ export const TransactionsTable = ({ transactions, isLoading }) => {
     const day = dateObj.getDate();
     const month = dateObj.toLocaleString("en-US", { month: "short" });
     const year = dateObj.getFullYear();
-    const time = dateObj.toLocaleString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
 
     return `${day} ${month} ${year}`;
   };
@@ -27,7 +22,7 @@ export const TransactionsTable = ({ transactions, isLoading }) => {
 
   if (transactions?.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center p-10 w-[30rem] mx-auto">
+      <div className="flex flex-col justify-center items-center p-10">
         <p className="flex justify-center items-center">
           <AiOutlineTransaction size={100} />
         </p>
@@ -41,7 +36,7 @@ export const TransactionsTable = ({ transactions, isLoading }) => {
   }
 
   return (
-    <table>
+    <table className="w-full">
       <thead className="sticky bg-white top-0">
         <tr className="uppercase text-sm text-gray-700 font-medium">
           <td className="px-10 py-6">Date</td>
@@ -59,7 +54,7 @@ export const TransactionsTable = ({ transactions, isLoading }) => {
                 {formatToReadableDate(entry?.date)}
               </td>
               <td className="px-10 py-6">{entry?.customerName}</td>
-              <td className="px-10 py-6">{entry?.detail}</td>
+              <td className="px-10 py-6">{entry?.detail || "-"}</td>
               <td className="px-10 py-6">
                 {entry?.amount < 0 ? `₹${-entry?.amount}` : "₹0"}
               </td>
