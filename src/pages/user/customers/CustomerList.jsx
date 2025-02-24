@@ -195,7 +195,7 @@ export const CustomerList = ({
                   <div className="flex items-center gap-4">
                     <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
                       <span className="text-blue-600 text-xl font-medium">
-                        {customer.name[0]}
+                        {customer?.name[0]}
                       </span>
                     </div>
 
@@ -205,10 +205,10 @@ export const CustomerList = ({
                           customer?.id === selectedCustomerId ? "font-bold" : ""
                         }`}
                       >
-                        {customer.name}
+                        {customer?.name}
                       </p>
                       <p className="text-gray-600 text-sm">
-                        {formatTimeAgo(customer.updateDate)}
+                        {formatTimeAgo(customer?.updateDate)}
                       </p>
                     </div>
                   </div>
@@ -216,20 +216,20 @@ export const CustomerList = ({
                   <div className="text-right">
                     <p
                       className={`text-lg  ${
-                        customer.amount > 0
+                        customer?.amount > 0
                           ? "text-green-500 font-semibold"
-                          : customer.amount < 0
+                          : customer?.amount < 0
                           ? "text-red-500 font-semibold"
                           : "text-black"
                       }`}
                     >
                       ₹
-                      {customer.amount >= 0
-                        ? Number(customer.amount).toLocaleString()
-                        : Number(customer.amount * -1).toLocaleString()}
+                      {customer?.amount >= 0
+                        ? Number(customer?.amount).toLocaleString()
+                        : Number(customer?.amount * -1).toLocaleString()}
                     </p>
                     <p className="text-gray-500 uppercase font-semibold text-sm">
-                      {checkAmount(customer.amount)}
+                      {checkAmount(customer?.amount)}
                     </p>
                   </div>
                 </div>
