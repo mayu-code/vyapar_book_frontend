@@ -5,7 +5,11 @@ import { useState } from "react";
 import { addCustomerService } from "../../../service/user/UserService";
 import { toast } from "react-toastify";
 
-export const AddCustomer = ({ setIsOpen, refetchCustomers }) => {
+export const AddCustomer = ({
+  setIsOpen,
+  refetchCustomers,
+  refetchGetDashboardData,
+}) => {
   const [isAddressOpen, setIsAddressOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
 
@@ -46,6 +50,16 @@ export const AddCustomer = ({ setIsOpen, refetchCustomers }) => {
 
     const finalPayload = { ...payload, address: shippingAddress };
 
+    if (
+      customerData.name === "" ||
+      customerData.mobileNo > 10 ||
+      customerData.mobileNo < 10 ||
+      customerData.reference === ""
+    ) {
+      toast.warn("Please Enter All Details");
+      return;
+    }
+
     // console.log(customerData);
     // console.log(shippingAddress);
     // console.log(finalPayload);
@@ -55,11 +69,12 @@ export const AddCustomer = ({ setIsOpen, refetchCustomers }) => {
     if (res?.statusCode === 200) {
       setIsOpen(false);
       toast.success(res?.message);
-      refetchCustomers();
     } else {
       setIsOpen(false);
       toast.error(res?.message);
     }
+    refetchGetDashboardData();
+    refetchCustomers();
 
     // console.log(billingAddress);
   };

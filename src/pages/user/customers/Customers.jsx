@@ -76,6 +76,7 @@ export const Customers = () => {
       {isAddCustomerOpen && (
         <AddCustomer
           setIsOpen={setIsAddCustomerOpen}
+          refetchGetDashboardData={refetchGetDashboardData}
           refetchCustomers={refetchCustomers}
         />
       )}

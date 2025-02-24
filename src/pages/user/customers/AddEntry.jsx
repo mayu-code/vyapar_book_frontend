@@ -58,6 +58,11 @@ export const AddEntry = ({
 
     // console.log(payload);
 
+    if (entryData.amount === 0 || date === "") {
+      toast.warn("Amount should be larger than 0");
+      return;
+    }
+
     const res = await addTransactionService(payload);
 
     // alert(res?.message);
@@ -179,10 +184,15 @@ export const AddEntry = ({
 
         <div className="w-[90%] py-2 mx-auto">
           <button
+            disabled={entryData.amount === 0 || date === ""}
             onClick={handleSubmit}
-            className={`p-2 w-full cursor-pointer rounded-md text-white ${
+            className={`p-2 w-full rounded-md text-white ${
               status
-                ? "bg-green-600 hover:bg-green-700"
+                ? entryData.amount === 0
+                  ? "bg-gray-300 cursor-no-drop text-white"
+                  : "bg-green-600 hover:bg-green-700"
+                : entryData.amount === 0
+                ? "bg-gray-300 cursor-no-drop text-white"
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
