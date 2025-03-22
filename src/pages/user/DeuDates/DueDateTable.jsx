@@ -2,19 +2,25 @@ import { HorizontalLoader } from "../../../components/ui/loaders/HorizontalLoade
 import { IoAlarmOutline } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { TbUsers } from "react-icons/tb";
+import { toast } from "react-toastify";
+import { getUserFromCookie } from "../../../security/cookies/UserCookie";
 
 export const DueDateTable = ({ customers, isLoading, activeTab }) => {
   const [activeCustomers, setActiveCustomers] = useState(
     activeTab === "Today"
       ? customers?.todaysDueDate
-      : customers?.tomorrowDueDate
+      : activeTab === "Tomorrow"
+      ? customers?.tomorrowDueDate
+      : customers?.notPaymentYet
   );
 
   useEffect(() => {
     setActiveCustomers(
       activeTab === "Today"
         ? customers?.todaysDueDate
-        : customers?.tomorrowDueDate
+        : activeTab === "Tomorrow"
+        ? customers?.tomorrowDueDate
+        : customers?.notPaymentYet
     );
   }, [activeTab, customers]);
 
@@ -53,6 +59,28 @@ export const DueDateTable = ({ customers, isLoading, activeTab }) => {
     );
   }
 
+  const user = getUserFromCookie();
+
+  const sendMessage = (amount, mobileNo) => {
+    if (mobileNo?.length === 0) {
+      toast.error("Customer Number is not present");
+      return;
+    } else if (mobileNo?.length < 10) {
+      toast.error("Customer Number is not valid");
+      return;
+    }
+    const messageTemplate = `Payment of Rs. ${-amount} pending with ${
+      user?.name
+    } (${user?.mobileNo})`;
+
+    const phoneNumber = `91${mobileNo}`;
+
+    window.open(
+      `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${messageTemplate}`,
+      "_blank"
+    );
+  };
+
   return (
     <table className="w-full">
       <thead className="sticky bg-white top-0">
@@ -77,7 +105,12 @@ export const DueDateTable = ({ customers, isLoading, activeTab }) => {
                 ₹{-customer?.amount}
               </td>
               <td className="px-10 py-6">
-                <div className="flex gap-2 border cursor-pointer text-blue-600 hover:border-blue-500 border-gray-300 w-30 justify-center items-center p-2 rounded-full">
+                <div
+                  onClick={() =>
+                    sendMessage(customer?.amount, customer?.mobileNo)
+                  }
+                  className="flex gap-2 border cursor-pointer text-blue-600 hover:border-blue-500 border-gray-300 w-30 justify-center items-center p-2 rounded-full"
+                >
                   <p className="flex justify-start  items-center">
                     <IoAlarmOutline size={30} />
                   </p>

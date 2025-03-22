@@ -80,7 +80,7 @@ export const CustomerDetail = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
+        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
           <div className="flex gap-4 mt-2">
             <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
               <span className="text-blue-600 text-xl font-medium">

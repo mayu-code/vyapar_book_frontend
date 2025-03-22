@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
+import { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { MdDeleteOutline } from "react-icons/md";
 
 export const AddCustomerForm = ({
   isOpen,
@@ -8,11 +10,16 @@ export const AddCustomerForm = ({
   setIsChecked,
   customerData,
   setCustomerData,
+  file,
+  setFile,
+  dragging,
+  setDragging,
   shippingAddress,
   setShippingAddress,
   // billingAddress,
   // setBillingAddress,
 }) => {
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
 
@@ -38,6 +45,40 @@ export const AddCustomerForm = ({
   // const handleCheckboxChange = (e) => {
   //   setIsChecked(e.target.checked);
   // };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+
+    if (selectedFile) {
+      if (!["image/png", "image/jpeg"].includes(selectedFile.type)) {
+        toast.warn("Only PNG and JPG files are allowed.");
+        return;
+      }
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        toast.warn("File size exceeds 5MB. Please select a smaller file.");
+        return;
+      }
+      setFile(selectedFile);
+    }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setDragging(false);
+    const selectedFile = event.dataTransfer.files[0];
+
+    if (selectedFile) {
+      if (!["image/png", "image/jpeg"].includes(selectedFile.type)) {
+        toast.warn("Only PNG and JPG files are allowed.");
+        return;
+      }
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        toast.warn("File size exceeds 5MB. Please select a smaller file.");
+        return;
+      }
+      setFile(selectedFile);
+    }
+  };
 
   return (
     <div className="flex flex-col mt-2 gap-5">
@@ -137,6 +178,56 @@ export const AddCustomerForm = ({
           </select>
         </div>
       </div>
+
+      <div className="text-gray-800">
+        <p>Attach Bill (Optional)</p>
+      </div>
+      {file ? (
+        <div className="w-full px-4 py-2 border border-gray-300 rounded-lg flex flex-col items-center  relative">
+          <div className="w-full flex justify-between items-center">
+            <p className="text-gray-700 font-medium">{file.name}</p>
+            <button
+              onClick={() => setFile(null)}
+              title="Delete"
+              className="text-red-600 cursor-pointer hover:text-red-800"
+            >
+              <MdDeleteOutline size={24} />
+            </button>
+          </div>
+          <div className="mt-2 w-full">
+            {file.type.startsWith("image/") && (
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Uploaded Preview"
+                className="w-full h-auto object-cover rounded-lg "
+              />
+            )}
+          </div>
+        </div>
+      ) : (
+        <div
+          className={`w-full h-52 border-2 border-dashed flex flex-col items-center justify-center cursor-pointer rounded-lg transition-all ${
+            dragging ? "border-blue-500 bg-blue-100" : "border-gray-400"
+          }`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => document.getElementById("fileInput").click()}
+        >
+          <p className="text-gray-600">Drag & Drop a PNG or JPG file</p>
+          <p className="text-blue-500 font-semibold">Click to Upload</p>
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/png, image/jpeg"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+      )}
 
       <div className="rounded-md mb-2">
         <button

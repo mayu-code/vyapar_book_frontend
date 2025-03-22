@@ -1,7 +1,10 @@
 import axios from "axios";
+import { BASE_URL } from "../ApiConstants";
+
+const USER_URL = `${BASE_URL}/user`;
 
 const user = axios.create({
-  baseURL: "http://localhost:8080/api/user",
+  baseURL: USER_URL,
 });
 
 export const getUserByToken = (token) => {
@@ -142,8 +145,24 @@ export const deleteCustomer = (token, customerId) => {
   });
 };
 
+export const deleteDueDate = (token, customerId, dueDate) => {
+  return user.delete(`/removeDueDate/${customerId}/${dueDate}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const getCustomersOnDueDate = (token) => {
   return user.get(`/getCustomersOnDueDate`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getCustomerRemainders = (token, customerId) => {
+  return user.get(`/getCustomerRemainders/${customerId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -161,6 +180,15 @@ export const downloadPdf = (token, customerId) => {
       startDate: undefined,
       endDate: undefined,
     },
+  });
+};
+
+export const downLoadRemaindersPdf = (token, customerId) => {
+  return user.get(`/downLoadRemainders/${customerId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    responseType: "blob",
   });
 };
 

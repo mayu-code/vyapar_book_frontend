@@ -77,10 +77,10 @@ export const UserLayout = () => {
         // hideProgressBar
         theme="colored"
       />
-      <div className="h-screen w-[6%] md:w-[6%] lg:w-[6%] xl:w-[6%] 2xl:w-[18%] overflow-y-auto bg-[#004D40]">
+      <div className="min-h-screen w-[6%] md:w-[6%] lg:w-[6%] xl:w-[18%] 2xl:w-[18%] overflow-y-auto ">
         <Sidebar />
       </div>
-      <div className="w-[100%] md:w-[100%] lg:w-[100%] xl:w-[100%] 2xl:w-[90%]">
+      <div className="w-[100%] md:w-[100%] min-h-screen lg:w-[100%] xl:w-[100%] 2xl:w-[90%]">
         <Outlet />
       </div>
     </section>

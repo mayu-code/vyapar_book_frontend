@@ -15,6 +15,7 @@ import { RiFileExcel2Line } from "react-icons/ri";
 export const TransactionReportDetails = () => {
   const location = useLocation();
   const customerName = location.state?.customerName;
+  // const customerId = location.state?.customerId;
 
   const formatDateTime = (dateObj) => {
     const now = dateObj || new Date();
@@ -112,7 +113,7 @@ export const TransactionReportDetails = () => {
     setFilter((prev) => ({ ...prev, query: value }));
   };
 
-  const handleDownload = async () => {
+  const handleExcelDownload = async () => {
     const response = await downloadExcelService(filter);
 
     const url = window.URL.createObjectURL(
@@ -127,6 +128,20 @@ export const TransactionReportDetails = () => {
     link.click();
     link.remove();
   };
+
+  // const handlePdfDownload = async () => {
+  //   const response = await downloadPdfService(customerId);
+
+  //   const url = window.URL.createObjectURL(
+  //     new Blob([response?.data], { type: "application/pdf" })
+  //   );
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.setAttribute("download", `customer_transactions_${customerId}.pdf`);
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   link.remove();
+  // };
 
   return (
     <section className="h-screen overflow-y-auto">
@@ -154,7 +169,7 @@ export const TransactionReportDetails = () => {
             <p>Download PDF</p>
           </div> */}
           <div
-            onClick={handleDownload}
+            onClick={handleExcelDownload}
             className="flex gap-2 border border-gray-400 p-3 rounded-md text-gray-600 cursor-pointer"
           >
             <p className="flex justify-center items-center">

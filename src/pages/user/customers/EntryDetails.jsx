@@ -4,7 +4,7 @@ import { LuBadgeIndianRupee, LuMoveUpRight } from "react-icons/lu";
 import { RxCross1 } from "react-icons/rx";
 import { FaBarsStaggered } from "react-icons/fa6";
 import { CgArrowBottomLeft, CgDanger } from "react-icons/cg";
-import { MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline, MdOutlineInsertPhoto } from "react-icons/md";
 import { useState } from "react";
 import { EditEntry } from "./EditEntry";
 import { deleteTransactionService } from "../../../service/user/UserService";
@@ -45,6 +45,12 @@ export const EntryDetails = ({
       title: "Running Balance",
       description: selectedTransition?.balanceAmount,
     },
+    {
+      id: 4,
+      icon: <MdOutlineInsertPhoto size={20} />,
+      title: "Photo Attachment",
+      description: selectedTransition?.bill,
+    },
   ];
 
   const formatToReadableDate = (dateString) => {
@@ -62,6 +68,20 @@ export const EntryDetails = ({
 
   const handleEditEntryClick = () => {
     setIsUpdateEntryOpen(true);
+  };
+
+  const handleImageClick = (base64String) => {
+    const byteCharacters = atob(base64String);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/jpeg" });
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Open in a new tab
+    window.open(blobUrl);
   };
 
   return (
@@ -85,7 +105,7 @@ export const EntryDetails = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
+        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
           <div className="flex gap-4 mt-2">
             <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
               <span className="text-blue-600 text-xl font-medium">
@@ -115,37 +135,57 @@ export const EntryDetails = ({
             {content?.map((item, index) => {
               return (
                 <div key={index} className="flex flex-col">
-                  <div className="flex gap-3 text-gray-600">
-                    <p
-                      className={`flex justify-center items-center ${
-                        item.id === 1
-                          ? item.description >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                          : ""
-                      }`}
-                    >
-                      {item.icon}
-                    </p>
-                    <p className="">{item.title}</p>
-                  </div>
-                  <div
-                    className={`ml-8 ${
-                      item.id === 2
-                        ? ""
-                        : item.description === 0
-                        ? "text-gray-700 font-medium"
-                        : item.description > 0
-                        ? "text-green-600 font-medium"
-                        : "text-red-600 font-medium"
-                    }`}
-                  >
-                    {item.id === 2
-                      ? item.description
-                      : item.description >= 0
-                      ? `₹${item.description}`
-                      : `₹${-item.description}`}
-                  </div>
+                  {item.id === 4 ? (
+                    <div onClick={() => handleImageClick(item.description)}>
+                      <div className="flex gap-3 text-gray-600">
+                        <p className={`flex justify-center items-center`}>
+                          {item.icon}
+                        </p>
+                        <p className="">{item.title}</p>
+                      </div>
+                      <div className={`ml-8 cursor-pointer`}>
+                        <img
+                          src={`data:image/jpeg;base64,${item.description}`}
+                          alt="bill"
+                          width={40}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex gap-3 text-gray-600">
+                        <p
+                          className={`flex justify-center items-center ${
+                            item.id === 1
+                              ? item.description >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                              : ""
+                          }`}
+                        >
+                          {item.icon}
+                        </p>
+                        <p className="">{item.title}</p>
+                      </div>
+                      <div
+                        className={`ml-8 ${
+                          item.id === 2
+                            ? ""
+                            : item.description === 0
+                            ? "text-gray-700 font-medium"
+                            : item.description > 0
+                            ? "text-green-600 font-medium"
+                            : "text-red-600 font-medium"
+                        }`}
+                      >
+                        {item.id === 2
+                          ? item.description
+                          : item.description >= 0
+                          ? `₹${item.description}`
+                          : `₹${-item.description}`}
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}

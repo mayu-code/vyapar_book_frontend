@@ -36,6 +36,9 @@ export const AddCustomer = ({
     state: "",
   });
 
+  const [file, setFile] = useState(null);
+  const [dragging, setDragging] = useState(false);
+
   // const [billingAddress, setBillingAddress] = useState({
   //   buildingNo: "",
   //   area: "",
@@ -50,21 +53,24 @@ export const AddCustomer = ({
 
     const finalPayload = { ...payload, address: shippingAddress };
 
-    if (
-      customerData.name === "" ||
-      customerData.mobileNo > 10 ||
-      customerData.mobileNo < 10 ||
-      customerData.reference === ""
-    ) {
+    if (customerData.name === "" || customerData.reference === "") {
       toast.warn("Please Enter All Details");
       return;
     }
+
+    const formData = new FormData();
+
+    formData.append(
+      "request",
+      new Blob([JSON.stringify(finalPayload)], { type: "application/json" })
+    );
+    formData.append("bill", file);
 
     // console.log(customerData);
     // console.log(shippingAddress);
     // console.log(finalPayload);
 
-    const res = await addCustomerService(finalPayload);
+    const res = await addCustomerService(formData);
 
     if (res?.statusCode === 200) {
       setIsOpen(false);
@@ -100,7 +106,7 @@ export const AddCustomer = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[35rem] py-2 px-4 overflow-y-auto">
+        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 overflow-y-auto">
           <AddCustomerForm
             isOpen={isAddressOpen}
             setIsOpen={setIsAddressOpen}
@@ -109,6 +115,10 @@ export const AddCustomer = ({
             customerData={customerData}
             setCustomerData={setCustomerData}
             shippingAddress={shippingAddress}
+            file={file}
+            setDragging={setDragging}
+            setFile={setFile}
+            dragging={dragging}
             setShippingAddress={setShippingAddress}
             // billingAddress={billingAddress}
             // setBillingAddress={setBillingAddress}

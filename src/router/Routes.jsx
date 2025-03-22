@@ -4,17 +4,18 @@ import { Register } from "../pages/common/auth/Register";
 import { Login } from "../pages/common/auth/Login";
 import { UserLayout } from "../components/layout/UserLayout";
 import { Customers } from "../pages/user/customers/Customers";
-import { ReportLayout } from "../components/layout/ReportLayout";
 import { TransactionReportDetails } from "../pages/user/reports/TransactionReportDetails";
-import { CashbookReportDetails } from "../pages/user/reports/CashbookReportDetails";
 import { Home } from "../pages/common/home/Home";
 import { CustomerDueDates } from "../pages/user/DeuDates/CustomerDueDates";
 import { ForgotPassword } from "../pages/common/auth/ForgetPassword";
+import { GlobalErrorPage } from "../pages/exception/GlobalErrorPage";
+import { NotFoundPage } from "../pages/exception/NotFoundPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
+    errorElement: <GlobalErrorPage />,
     children: [
       {
         path: "/",
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
   {
     path: "/user",
     element: <UserLayout />,
+    errorElement: <GlobalErrorPage />,
     children: [
       {
         path: "/user/customers",
@@ -51,5 +53,9 @@ export const router = createBrowserRouter([
         element: <TransactionReportDetails />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);

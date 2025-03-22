@@ -2,11 +2,14 @@ import {
   addCustomer,
   addTransaction,
   deleteCustomer,
+  deleteDueDate,
   deleteTransaction,
   downloadExcel,
   downloadPdf,
+  downLoadRemaindersPdf,
   getAllCustomers,
   getCustomerById,
+  getCustomerRemainders,
   getCustomersOnDueDate,
   getCustomersTransaction,
   getDashboard,
@@ -21,6 +24,7 @@ import {
 
 const errorMessage = {
   message: "Something went wrong !!",
+  statusCode: 500,
 };
 
 export const getUserByTokenService = async (token) => {
@@ -86,7 +90,7 @@ export const setDueDateService = async (deuDateReq) => {
     return res?.data;
   } catch (error) {
     console.log(error);
-    return errorMessage;
+    return error?.response?.data || errorMessage;
   }
 };
 
@@ -107,6 +111,19 @@ export const downloadPdfService = async (customerId) => {
     const token = localStorage.getItem("token");
 
     const res = await downloadPdf(token, customerId);
+    // console.log(res);
+    return res;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const downLoadRemaindersPdfService = async (customerId) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await downLoadRemaindersPdf(token, customerId);
     // console.log(res);
     return res;
   } catch (error) {
@@ -168,6 +185,18 @@ export const getCustomersOnDueDateService = async () => {
     const token = localStorage.getItem("token");
 
     const res = await getCustomersOnDueDate(token);
+    return res?.data?.data;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const getCustomerRemaindersService = async (customerId) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await getCustomerRemainders(token, customerId);
     return res?.data?.data;
   } catch (error) {
     console.log(error);
@@ -240,6 +269,18 @@ export const deleteCustomerService = async (customerId) => {
     const token = localStorage.getItem("token");
 
     const res = await deleteCustomer(token, customerId);
+    return res?.data;
+  } catch (error) {
+    console.log(error);
+    return errorMessage;
+  }
+};
+
+export const deleteDueDateService = async (customerId, dueDate) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await deleteDueDate(token, customerId, dueDate);
     return res?.data;
   } catch (error) {
     console.log(error);

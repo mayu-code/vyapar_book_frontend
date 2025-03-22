@@ -87,7 +87,7 @@ export const UpdateCustomer = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[35rem] py-2 px-4 overflow-y-auto">
+        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 overflow-y-auto">
           <UpdateCustomerForm
             isOpen={isAddressOpen}
             setIsOpen={setIsAddressOpen}

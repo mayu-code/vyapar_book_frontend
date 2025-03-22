@@ -140,6 +140,26 @@ export const CustomerDueDates = () => {
             {dueCustomers?.tomorrowDueDate?.length || 0}
           </span>
         </p>
+
+        <p
+          className={`cursor-pointer relative px-5 pb-4 ${
+            activeTab === "Pending"
+              ? "font-bold text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 font-medium"
+          }`}
+          onClick={() => setActiveTab("Pending")}
+        >
+          Pending
+          <span
+            className={`${
+              dueCustomers?.notPaymentYet?.length
+                ? "bg-red-100 text-red-500"
+                : ""
+            } text-sm py-1 px-2 font-medium  rounded-full`}
+          >
+            {dueCustomers?.notPaymentYet?.length || 0}
+          </span>
+        </p>
       </div>
 
       <div className="py-3 px-2 mt-3">

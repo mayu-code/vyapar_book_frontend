@@ -98,7 +98,7 @@ export const CustomerList = ({
   // console.log(customers);
 
   return (
-    <div className="bg-white border-r border-r-gray-200 flex flex-col gap-5">
+    <div className="bg-white border-r border-r-gray-200 flex h-full flex-col gap-5">
       <div className="flex justify-around mt-5 border-b border-gray-300 pb-3">
         <div className="flex gap-2 text-lg">
           <p className="flex justify-center items-center text-gray-600">
@@ -173,13 +173,13 @@ export const CustomerList = ({
         </div>
       </div>
 
-      <div>
+      <div className="w-full h-full">
         <div className="flex px-4 uppercase text-gray-500 text-sm justify-between">
           <p>Name</p>
           <p>Amount</p>
         </div>
 
-        <div className="h-[25rem] mt-5 flex flex-col gap-8 overflow-y-auto">
+        <div className="h-[17rem] xl:h-[21rem] 2xl:h-[25rem] mt-5 flex flex-col gap-8 overflow-y-auto">
           {isCustomersLoading ? (
             <div className="w-full">
               <HorizontalLoader />
@@ -195,7 +195,7 @@ export const CustomerList = ({
                   <div className="flex items-center gap-4">
                     <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
                       <span className="text-blue-600 text-xl font-medium">
-                        {customer?.name[0]}
+                        {customer?.name ? customer?.name[0] : ""}
                       </span>
                     </div>
 
@@ -238,7 +238,7 @@ export const CustomerList = ({
           )}
         </div>
 
-        <div className="flex justify-center items-center p-2 bg-transparent/50">
+        <div className="flex justify-center items-center w-full p-2 bg-transparent/50">
           <div
             onClick={() => setIsOpen(true)}
             className="flex gap-3 py-2 px-4 text-white hover:bg-blue-700 cursor-pointer bg-blue-600 rounded-md"

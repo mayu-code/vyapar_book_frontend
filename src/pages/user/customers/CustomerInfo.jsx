@@ -2,21 +2,27 @@ import { useQuery } from "@tanstack/react-query";
 import { BsGear } from "react-icons/bs";
 import { LuAlarmClock, LuClipboardList } from "react-icons/lu";
 import {
+  deleteDueDateService,
   downloadPdfService,
   getCustomerByIdService,
   getCustomersTransactionService,
   setDueDateService,
 } from "../../../service/user/UserService";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AddEntry } from "./AddEntry";
 import { IoBookOutline } from "react-icons/io5";
 import { HorizontalLoader } from "../../../components/ui/loaders/HorizontalLoader";
 import { EntryDetails } from "./EntryDetails";
 import { CustomerDetail } from "./CustomerDetail";
 import { useNavigate } from "react-router-dom";
-import { FaRegFilePdf } from "react-icons/fa";
+import { FaRegFilePdf, FaWhatsapp } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import useOutsideClick from "../../../components/hooks/useOutsideClick";
+import { IoMdInformationCircleOutline } from "react-icons/io";
+import { toast } from "react-toastify";
+import { getUserFromCookie } from "../../../security/cookies/UserCookie";
+import { FailedReminders } from "./FailedReminders";
+import { MdOutlineSmsFailed } from "react-icons/md";
 
 export const CustomerInfo = ({
   refetchGetDashboardData,
@@ -29,6 +35,12 @@ export const CustomerInfo = ({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedTransition, setSelectedTransition] = useState(null);
   const [isCustomerDetailOpen, setIsCustomerDetailOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [reasonPopup, setReasonPopup] = useState(false);
+  const [reason, setReason] = useState("");
+
+  const user = getUserFromCookie();
 
   const navigate = useNavigate();
 
@@ -43,9 +55,19 @@ export const CustomerInfo = ({
     },
   });
 
-  const date = customer?.dueDate ? new Date(customer.dueDate) : new Date();
+  // const date = customer?.dueDate ? new Date(customer.dueDate) : new Date();
 
-  const [selectedDate, setSelectedDate] = useState(date.toString());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dateStatus, setDateStatus] = useState("set");
+
+  useEffect(() => {
+    if (customer?.dueDate) {
+      setSelectedDate(new Date(customer.dueDate).toString());
+      setDateStatus("edit");
+    } else {
+      setDateStatus("set");
+    }
+  }, [customer?.dueDate]);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef(null);
@@ -60,18 +82,40 @@ export const CustomerInfo = ({
 
     const updatedDueDate = {
       id: customer?.id,
+      amount: customer?.amount,
       dueDate: formatted,
     };
+
+    if (dateStatus === "edit") {
+      setShowDatePicker(false);
+      return setReasonPopup(true);
+    }
 
     const res = await setDueDateService(updatedDueDate);
 
     if (res?.statusCode === 200) {
       // console.log("success");
-      refetchCustomer();
-      refetchCustomers();
+      toast.success(res?.message);
+    } else {
+      toast.error(res?.message);
     }
 
+    refetchCustomer();
+    refetchCustomers();
+
     setShowDatePicker(false);
+  };
+
+  const removeDueDate = async () => {
+    const res = await deleteDueDateService(customerId, customer?.dueDate);
+
+    if (res?.statusCode === 200) {
+      toast.success(res?.message);
+    } else {
+      toast.error(res?.message);
+    }
+    refetchCustomer();
+    refetchCustomers();
   };
 
   const formatToReadableDate = (dateString) => {
@@ -154,9 +198,58 @@ export const CustomerInfo = ({
     link.remove();
   };
 
+  const messageTemplate = `Payment of Rs. ${-customer?.amount} pending with ${
+    user?.name
+  } (${user?.mobileNo})`;
+
+  const sendMessage = () => {
+    if (customer?.mobileNo?.length === 0) {
+      toast.error("Customer Number is not present");
+      return;
+    } else if (customer?.mobileNo?.length < 10) {
+      toast.error("Customer Number is not valid");
+      return;
+    }
+
+    const phoneNumber = `91${customer?.mobileNo}`;
+
+    window.open(
+      `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${messageTemplate}`,
+      "_blank"
+    );
+  };
+
+  const handleConfirm = async () => {
+    const formatted = selectedDate
+      ? selectedDate.toISOString().split("T")[0]
+      : "";
+
+    const updatedDueDate = {
+      id: customer?.id,
+      amount: customer?.amount,
+      reason: reason,
+      dueDate: formatted,
+    };
+
+    const res = await setDueDateService(updatedDueDate);
+
+    if (res?.statusCode === 200) {
+      // console.log("success");
+      toast.success(res?.message);
+    } else {
+      toast.error(res?.message);
+    }
+
+    setReasonPopup(false);
+    setReason("");
+
+    refetchCustomer();
+    refetchCustomers();
+  };
+
   return (
     <div
-      className="bg-white w-[94%] mx-auto flex flex-col gap-5"
+      className="bg-white w-[94%] mx-auto flex flex-col h-full gap-5"
       ref={datePickerRef}
     >
       <div className="flex  mt-3  justify-between" ref={datePickerRef}>
@@ -205,7 +298,7 @@ export const CustomerInfo = ({
         </div>
       </div>
       <div className="flex justify-between" ref={datePickerRef}>
-        {customer?.dueDate ? (
+        {customer?.amount < 0 ? (
           <div className="flex flex-col gap-1" ref={datePickerRef}>
             <div className="flex gap-2 text-gray-600">
               <p className="flex justify-center items-center">
@@ -219,12 +312,22 @@ export const CustomerInfo = ({
               <p className="flex justify-center items-center">
                 {formatDueDate(customer?.dueDate)}
               </p>
-              <p
-                onClick={() => setShowDatePicker(!showDatePicker)}
-                className="px-2 border border-blue-300 text-sm cursor-pointer hover:border-blue-400 rounded-md text-blue-600"
-              >
-                Edit
-              </p>
+              <div className="flex gap-2">
+                <p
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                  className="px-2 border border-blue-300 text-sm cursor-pointer hover:border-blue-400 rounded-md text-blue-600"
+                >
+                  {customer?.dueDate ? "Edit" : "Set Date"}
+                </p>
+                {customer?.dueDate && (
+                  <p
+                    onClick={removeDueDate}
+                    className="px-2 border border-blue-300 text-sm cursor-pointer hover:border-blue-400 rounded-md text-blue-600"
+                  >
+                    Remove
+                  </p>
+                )}
+              </div>
               {showDatePicker && (
                 <div className="absolute top-36">
                   <DatePicker
@@ -259,6 +362,53 @@ export const CustomerInfo = ({
           </div>
         </div>
       </div>
+      {customer?.amount < 0 && (
+        <div className="flex justify-between px-8">
+          <div className="flex gap-1 justify-center items-center font-medium">
+            <p className="flex justify-center items-center">Send Reminder</p>
+            <p
+              className="flex justify-center items-center"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <IoMdInformationCircleOutline />
+            </p>
+            {showTooltip && (
+              <div className="absolute right-[10%] text-gray-700 w-[20rem] top-[33%] xl:top-[30%] 2xl:top-[28%] mt-1 bg-gray-50 border py-3 px-4 border-gray-300  text-sm rounded shadow-lg">
+                <div className="font-semibold text-gray-800">
+                  Remider Template
+                </div>
+                <div className="p-2 border mt-3 border-gray-300">
+                  {messageTemplate}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <div
+              onClick={sendMessage}
+              className="flex gap-2 cursor-pointer justify-center items-center px-4 border border-gray-300 rounded-md py-2"
+            >
+              <p className="flex justify-center items-center text-green-500">
+                <FaWhatsapp />
+              </p>
+              <p className="flex justify-center items-center ">Whatsapp</p>
+            </div>
+            <div
+              onClick={() => setShowPopup(true)}
+              className="flex gap-2 cursor-pointer justify-center items-center px-4 border border-gray-300 rounded-md py-2"
+            >
+              <p className="flex justify-center items-center ">
+                <MdOutlineSmsFailed />
+              </p>
+              <p className="flex justify-center items-center ">Remiders</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPopup && (
+        <FailedReminders customer={customer} setShow={setShowPopup} />
+      )}
       <div ref={datePickerRef}>
         <div className="grid grid-cols-4 gap-5 text-gray-500 uppercase">
           <p className="col-span-2">Entries</p>
@@ -271,7 +421,13 @@ export const CustomerInfo = ({
             <HorizontalLoader />
           </div>
         ) : (
-          <div className="h-[25rem] bg-white-600 overflow-y-auto flex flex-col mt-4 gap-4">
+          <div
+            className={`${
+              customer?.amount < 0
+                ? "h-[11rem] xl:h-[16rem] 2xl:h-[20rem]"
+                : "h-[16rem] xl:h-[21rem] 2xl:h-[25rem]"
+            }  bg-white-600 overflow-y-auto flex flex-col mt-4 gap-4`}
+          >
             {customersTransactions?.length > 0 ? (
               customersTransactions?.map((entry, index) => {
                 return (
@@ -284,8 +440,13 @@ export const CustomerInfo = ({
                       <div className="flex flex-col col-span-2 gap-1">
                         <div className="flex  gap-1 font-medium ">
                           <p>{formatToReadableDate(entry.date)}</p>
-                          {/* <p>•</p> */}
-                          {/* <p> {entry.time}</p> */}
+                          {entry?.bill && (
+                            <img
+                              src={`data:image/jpeg;base64,${entry.bill}`}
+                              alt="bill"
+                              width={40}
+                            />
+                          )}
                         </div>
                         <div className="text-gray-500 flex gap-1">
                           <p>Balance:</p>
@@ -327,6 +488,14 @@ export const CustomerInfo = ({
           </div>
         )}
       </div>
+      {reasonPopup && (
+        <ReasonPopUp
+          reason={reason}
+          setReason={setReason}
+          setShowPopup={setReasonPopup}
+          handleConfirm={handleConfirm}
+        />
+      )}
       {isOpen && (
         <AddEntry
           refetchGetDashboardData={refetchGetDashboardData}
@@ -373,6 +542,40 @@ export const CustomerInfo = ({
         >
           You Got ₹
         </button>
+      </div>
+    </div>
+  );
+};
+
+const ReasonPopUp = ({ reason, setReason, setShowPopup, handleConfirm }) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-lg font-semibold mb-1">Enter Reason</h2>
+        <p className="text-gray-700 text-sm mb-4">
+          You are changing the due date mention the reason.
+        </p>
+        <input
+          type="text"
+          className="w-full p-2 border border-gray-500 focus:outline-none focus:border-blue-500 rounded-md"
+          placeholder="Enter reason..."
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+        <div className="flex justify-end space-x-2 mt-4">
+          <button
+            onClick={() => setShowPopup(false)}
+            className="px-4 py-2 cursor-pointer bg-gray-300 rounded-md"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 cursor-pointer bg-blue-600 text-white rounded-md"
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   );

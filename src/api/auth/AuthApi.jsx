@@ -1,7 +1,10 @@
 import axios from "axios";
+import { BASE_URL } from "../ApiConstants";
+
+const AUTH_URL = `${BASE_URL}/auth`;
 
 const auth = axios.create({
-  baseURL: "http://localhost:8080/api/auth",
+  baseURL: AUTH_URL,
 });
 
 export const registerUser = (registerReq) => {

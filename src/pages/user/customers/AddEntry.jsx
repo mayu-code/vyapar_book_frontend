@@ -5,6 +5,7 @@ import { CiCalendarDate } from "react-icons/ci";
 import { RxCross1 } from "react-icons/rx";
 import { addTransactionService } from "../../../service/user/UserService";
 import { toast } from "react-toastify";
+import { MdDeleteOutline } from "react-icons/md";
 
 export const AddEntry = ({
   refetchGetDashboardData,
@@ -16,6 +17,43 @@ export const AddEntry = ({
   refetchTransactions,
 }) => {
   const [date, setDate] = useState(new Date());
+  const [file, setFile] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setDragging(false);
+    const selectedFile = event.dataTransfer.files[0];
+
+    if (selectedFile) {
+      if (!["image/png", "image/jpeg"].includes(selectedFile.type)) {
+        toast.warn("Only PNG and JPG files are allowed.");
+        return;
+      }
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        toast.warn("File size exceeds 5MB. Please select a smaller file.");
+        return;
+      }
+      setFile(selectedFile);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+
+    if (selectedFile) {
+      if (!["image/png", "image/jpeg"].includes(selectedFile.type)) {
+        toast.warn("Only PNG and JPG files are allowed.");
+        return;
+      }
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        toast.warn("File size exceeds 5MB. Please select a smaller file.");
+        return;
+      }
+      setFile(selectedFile);
+    }
+  };
 
   const formatDateTime = (dateObj) => {
     const now = dateObj || new Date();
@@ -63,7 +101,15 @@ export const AddEntry = ({
       return;
     }
 
-    const res = await addTransactionService(payload);
+    const formData = new FormData();
+
+    formData.append(
+      "transaction",
+      new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
+    formData.append("bill", file);
+
+    const res = await addTransactionService(formData);
 
     // alert(res?.message);
 
@@ -113,7 +159,7 @@ export const AddEntry = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
+        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
           <div className="flex flex-col gap-2">
             <label htmlFor="amount" className="text-gray-800">
               Amount
@@ -180,6 +226,56 @@ export const AddEntry = ({
               />
             </div>
           </div>
+
+          <div className="text-gray-800">
+            <p>Attach Bill (Optional)</p>
+          </div>
+          {file ? (
+            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg flex flex-col items-center  relative">
+              <div className="w-full flex justify-between items-center">
+                <p className="text-gray-700 font-medium">{file.name}</p>
+                <button
+                  onClick={() => setFile(null)}
+                  title="Delete"
+                  className="text-red-600 cursor-pointer hover:text-red-800"
+                >
+                  <MdDeleteOutline size={24} />
+                </button>
+              </div>
+              <div className="mt-2 w-full">
+                {file.type.startsWith("image/") && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="Uploaded Preview"
+                    className="w-full h-auto object-cover rounded-lg "
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div
+              className={`w-full h-44 border-2 border-dashed flex flex-col items-center justify-center cursor-pointer rounded-lg transition-all ${
+                dragging ? "border-blue-500 bg-blue-100" : "border-gray-400"
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById("fileInput").click()}
+            >
+              <p className="text-gray-600">Drag & Drop a PNG or JPG file</p>
+              <p className="text-blue-500 font-semibold">Click to Upload</p>
+              <input
+                type="file"
+                id="fileInput"
+                accept="image/png, image/jpeg"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+          )}
         </div>
 
         <div className="w-[90%] py-2 mx-auto">
