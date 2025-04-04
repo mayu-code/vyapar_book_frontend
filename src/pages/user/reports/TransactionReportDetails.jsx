@@ -187,7 +187,7 @@ export const TransactionReportDetails = () => {
             Customer Name
           </label>
           <input
-            type="text"
+            type="search"
             name="name"
             value={searchQuery}
             onChange={handleSearchChange}

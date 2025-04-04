@@ -4,8 +4,9 @@ import { CiCalendarDate } from "react-icons/ci";
 import { updateTransactionService } from "../../../service/user/UserService";
 import { FaAngleLeft } from "react-icons/fa6";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdDeleteOutline } from "react-icons/md";
+import { Star } from "../../../utilities/StarMark";
 
 export const EditEntry = ({
   refetchGetDashboardData,
@@ -33,6 +34,20 @@ export const EditEntry = ({
       String(now.getSeconds()).padStart(2, "0")
     );
   };
+
+  const [divHeight, setDivHeight] = useState("30vh");
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const zoomLevel = window.devicePixelRatio;
+      setDivHeight(`${Math.min(80, Math.max(20, 120 / zoomLevel))}vh`);
+    };
+
+    window.addEventListener("resize", updateHeight);
+    updateHeight();
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const [entryData, setEntryData] = useState({
     id: transition?.id,
@@ -90,6 +105,11 @@ export const EditEntry = ({
 
   const handleSubmit = async () => {
     // console.log(entryData);
+
+    if (entryData.amount === 0 || entryData.amount === "0") {
+      toast.warn("Amount should be larger than 0");
+      return;
+    }
 
     const formData = new FormData();
 
@@ -150,10 +170,13 @@ export const EditEntry = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
+        <div
+          className=" py-2 px-4 flex flex-col gap-5 overflow-y-auto"
+          style={{ height: divHeight }}
+        >
           <div className="flex flex-col gap-2">
             <label htmlFor="amount" className="text-gray-800">
-              Amount
+              Amount <Star />
             </label>
             <div className="flex px-4 py-2 border rounded-md border-gray-300 focus:border-blue-500">
               <div className="flex justify-center items-center">
@@ -247,7 +270,7 @@ export const EditEntry = ({
 
           <div className="flex flex-col gap-2 w-full">
             <label htmlFor="date" className="text-gray-700">
-              Date
+              Date <Star />
             </label>
             <div className="relative flex w-full items-center">
               <CiCalendarDate

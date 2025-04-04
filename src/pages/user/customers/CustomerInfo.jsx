@@ -39,10 +39,7 @@ export const CustomerInfo = ({
   const [showPopup, setShowPopup] = useState(false);
   const [reasonPopup, setReasonPopup] = useState(false);
   const [reason, setReason] = useState("");
-
-  const user = getUserFromCookie();
-
-  const navigate = useNavigate();
+  const [divHeight, setDivHeight] = useState("30vh");
 
   const {
     data: customer,
@@ -54,6 +51,27 @@ export const CustomerInfo = ({
       return await getCustomerByIdService(customerId);
     },
   });
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const zoomLevel = window.devicePixelRatio;
+      setDivHeight(
+        `${Math.min(
+          customer?.amount < 0 ? 49 : 60,
+          Math.max(20, (customer?.amount < 0 ? 57 : 73) / zoomLevel)
+        )}vh`
+      );
+    };
+
+    window.addEventListener("resize", updateHeight);
+    updateHeight();
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, [customer?.amount]);
+
+  const user = getUserFromCookie();
+
+  const navigate = useNavigate();
 
   // const date = customer?.dueDate ? new Date(customer.dueDate) : new Date();
 
@@ -267,15 +285,17 @@ export const CustomerInfo = ({
         </div>
 
         <div className="flex gap-4">
-          <div
-            onClick={handleDownload}
-            className="flex gap-2 border border-gray-400 p-2 rounded-md text-gray-600 cursor-pointer"
-          >
-            <p className="flex justify-center items-center">
-              <FaRegFilePdf />
-            </p>
-            <p className="flex justify-center items-center">Download PDF</p>
-          </div>
+          {customersTransactions?.length > 0 && (
+            <div
+              onClick={handleDownload}
+              className="flex gap-2 border border-gray-400 p-2 rounded-md text-gray-600 cursor-pointer"
+            >
+              <p className="flex justify-center items-center">
+                <FaRegFilePdf />
+              </p>
+              <p className="flex justify-center items-center">Download PDF</p>
+            </div>
+          )}
           <div
             onClick={() =>
               navigate("/user/reports", {
@@ -417,16 +437,14 @@ export const CustomerInfo = ({
         </div>
         <hr className="text-gray-300 mt-2" />
         {isTransactionsLoading ? (
-          <div className="w-full h-[25rem]">
+          <div className="w-full" style={{ height: divHeight }}>
             <HorizontalLoader />
           </div>
         ) : (
           <div
-            className={`${
-              customer?.amount < 0
-                ? "h-[11rem] xl:h-[16rem] 2xl:h-[20rem]"
-                : "h-[16rem] xl:h-[21rem] 2xl:h-[25rem]"
-            }  bg-white-600 overflow-y-auto flex flex-col mt-4 gap-4`}
+            className="
+            bg-white overflow-auto flex flex-col mt-4 gap-4"
+            style={{ height: divHeight }}
           >
             {customersTransactions?.length > 0 ? (
               customersTransactions?.map((entry, index) => {
@@ -438,13 +456,13 @@ export const CustomerInfo = ({
                   >
                     <div className="grid grid-cols-4 gap-5 ">
                       <div className="flex flex-col col-span-2 gap-1">
-                        <div className="flex  gap-1 font-medium ">
+                        <div className="flex flex-col gap-1 font-medium ">
                           <p>{formatToReadableDate(entry.date)}</p>
                           {entry?.bill && (
                             <img
                               src={`data:image/jpeg;base64,${entry.bill}`}
                               alt="bill"
-                              width={40}
+                              className="w-10 h-10"
                             />
                           )}
                         </div>

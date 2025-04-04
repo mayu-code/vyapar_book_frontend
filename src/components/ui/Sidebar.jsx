@@ -61,16 +61,16 @@ export const Sidebar = () => {
 
   return (
     <div className="px-4 flex flex-col bg-[#004D40] gap-4 h-full">
-      <h2 className="hidden xl:inline text-center mt-4 text-white text-2xl font-semibold">
+      {/* <h2 className="hidden xl:inline text-center mt-4 text-white text-2xl font-semibold">
         VyaparBook
-      </h2>
+      </h2> */}
 
       <div className="xl:hidden mt-4 flex justify-center text-white items-center">
         <IoBookOutline size={30} />
       </div>
 
       <div>
-        <div className="xl:p-4 xl:bg-[#205a51] rounded-xl select-none cursor-pointer flex gap-4 2xl:gap-6">
+        <div className="xl:p-4 xl:mt-5 xl:bg-[#205a51] rounded-xl select-none cursor-pointer flex gap-4 2xl:gap-6">
           <div className="flex justify-center items-center">
             <span className="py-2 px-4 rounded-md text-white bg-pink-500">
               A

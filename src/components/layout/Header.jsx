@@ -32,7 +32,7 @@ export const Header = () => {
     <div className="bg-gray-200 sticky top-0 z-50 w-full">
       <div className="w-[100%] mx-auto">
         <div className="flex py-2 h-[5.5rem] justify-between">
-          <NavLink to="/">
+          {/* <NavLink to="/">
             <div className="flex justify-center items-end gap-2">
               <figure className="relative left-20">
                 <img src={companyLogo} alt="logo" className="w-10" />
@@ -43,7 +43,8 @@ export const Header = () => {
                 </h1>
               </div>
             </div>
-          </NavLink>
+          </NavLink> */}
+          <div></div>
           <div className="hidden md:flex justify-center mr-5  items-center">
             <ul className="flex space-x-5">
               {!test && (

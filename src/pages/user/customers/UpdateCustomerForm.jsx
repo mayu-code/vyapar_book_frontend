@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { Star } from "../../../utilities/StarMark";
 
 export const UpdateCustomerForm = ({
   isOpen,
@@ -40,7 +41,7 @@ export const UpdateCustomerForm = ({
     <div className="flex flex-col mt-2 gap-5">
       <div className="flex flex-col gap-2">
         <label htmlFor="name" className="text-gray-800">
-          Customer Name
+          Customer Name <Star />
         </label>
         <input
           type="text"
@@ -55,7 +56,7 @@ export const UpdateCustomerForm = ({
 
       <div className="flex flex-col gap-2">
         <label htmlFor="mobileNo" className="text-gray-800">
-          Phone Number
+          Phone Number <Star />
         </label>
         <div className="flex px-4 py-2 border rounded-md border-gray-300 focus:border-blue-500">
           <div className="flex justify-center items-center">
@@ -80,7 +81,7 @@ export const UpdateCustomerForm = ({
 
       <div className="flex flex-col gap-2">
         <label htmlFor="mobileNo" className="text-gray-800">
-          Reference
+          Reference <Star />
         </label>
         <div className="flex px-4 py-2 border rounded-md border-gray-300 focus:border-blue-500">
           <input

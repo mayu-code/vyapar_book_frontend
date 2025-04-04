@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { CiCalendarDate } from "react-icons/ci";
 import { RxCross1 } from "react-icons/rx";
 import { addTransactionService } from "../../../service/user/UserService";
 import { toast } from "react-toastify";
 import { MdDeleteOutline } from "react-icons/md";
+import { Star } from "../../../utilities/StarMark";
 
 export const AddEntry = ({
   refetchGetDashboardData,
@@ -20,6 +21,19 @@ export const AddEntry = ({
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const [divHeight, setDivHeight] = useState("30vh");
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const zoomLevel = window.devicePixelRatio;
+      setDivHeight(`${Math.min(80, Math.max(20, 120 / zoomLevel))}vh`);
+    };
+
+    window.addEventListener("resize", updateHeight);
+    updateHeight();
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -96,7 +110,7 @@ export const AddEntry = ({
 
     // console.log(payload);
 
-    if (entryData.amount === 0 || date === "") {
+    if (entryData.amount === 0 || entryData.amount === "0") {
       toast.warn("Amount should be larger than 0");
       return;
     }
@@ -159,10 +173,13 @@ export const AddEntry = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 flex flex-col gap-5 overflow-y-auto">
+        <div
+          className=" py-2 px-4 flex flex-col gap-5 overflow-y-auto"
+          style={{ height: divHeight }}
+        >
           <div className="flex flex-col gap-2">
             <label htmlFor="amount" className="text-gray-800">
-              Amount
+              Amount <Star />
             </label>
             <div className="flex px-4 py-2 border rounded-md border-gray-300 focus:border-blue-500">
               <div className="flex justify-center items-center">
@@ -206,7 +223,7 @@ export const AddEntry = ({
 
           <div className="flex flex-col gap-2 w-full">
             <label htmlFor="date" className="text-gray-700">
-              Date
+              Date <Star />
             </label>
             <div className="relative flex w-full items-center">
               <CiCalendarDate
@@ -286,10 +303,10 @@ export const AddEntry = ({
               status
                 ? entryData.amount === 0
                   ? "bg-gray-300 cursor-no-drop text-white"
-                  : "bg-green-600 hover:bg-green-700"
+                  : "bg-green-600 hover:bg-green-700 cursor-pointer"
                 : entryData.amount === 0
                 ? "bg-gray-300 cursor-no-drop text-white"
-                : "bg-red-600 hover:bg-red-700"
+                : "bg-red-600 hover:bg-red-700 cursor-pointer"
             }`}
           >
             Save

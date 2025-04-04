@@ -169,6 +169,14 @@ export const getCustomerRemainders = (token, customerId) => {
   });
 };
 
+export const getCustomerByMobile = (token, mobileNo) => {
+  return user.get(`/getCustomerByMobile/${mobileNo}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const downloadPdf = (token, customerId) => {
   return user.get(`/downloadReport`, {
     headers: {

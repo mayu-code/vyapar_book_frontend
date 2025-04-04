@@ -1,7 +1,7 @@
 import { RxCross1 } from "react-icons/rx";
 import { motion } from "framer-motion";
 import { AddCustomerForm } from "./AddCustomerForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addCustomerService } from "../../../service/user/UserService";
 import { toast } from "react-toastify";
 
@@ -15,6 +15,19 @@ export const AddCustomer = ({
 
   const now = new Date();
   const formattedDate = now.toISOString().slice(0, 19).replace("T", " ");
+  const [divHeight, setDivHeight] = useState("30vh");
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const zoomLevel = window.devicePixelRatio;
+      setDivHeight(`${Math.min(80, Math.max(20, 120 / zoomLevel))}vh`);
+    };
+
+    window.addEventListener("resize", updateHeight);
+    updateHeight();
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const [customerData, setCustomerData] = useState({
     name: "",
@@ -75,12 +88,12 @@ export const AddCustomer = ({
     if (res?.statusCode === 200) {
       setIsOpen(false);
       toast.success(res?.message);
+      refetchGetDashboardData();
+      refetchCustomers();
     } else {
-      setIsOpen(false);
+      // setIsOpen(false);
       toast.error(res?.message);
     }
-    refetchGetDashboardData();
-    refetchCustomers();
 
     // console.log(billingAddress);
   };
@@ -106,7 +119,10 @@ export const AddCustomer = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 overflow-y-auto">
+        <div
+          className=" py-2 px-4 overflow-y-auto"
+          style={{ height: divHeight }}
+        >
           <AddCustomerForm
             isOpen={isAddressOpen}
             setIsOpen={setIsAddressOpen}
@@ -125,7 +141,7 @@ export const AddCustomer = ({
           />
         </div>
 
-        <div className="w-[90%] py-2 mx-auto">
+        <div className="w-[90%] flex justify-center items-center py-2 mx-auto">
           <button
             disabled={
               customerData.name === "" ||

@@ -1,9 +1,11 @@
 import { GoArrowDownLeft, GoArrowUpRight } from "react-icons/go";
 import { IoIosSearch, IoMdAdd } from "react-icons/io";
 import { LuClipboardList } from "react-icons/lu";
+import { FiUser } from "react-icons/fi";
 import { MdFilterList } from "react-icons/md";
 import { HorizontalLoader } from "../../../components/ui/loaders/HorizontalLoader";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export const CustomerList = ({
   paramReq,
@@ -18,6 +20,19 @@ export const CustomerList = ({
   isCustomersLoading,
 }) => {
   const navigate = useNavigate();
+  const [divHeight, setDivHeight] = useState("30vh");
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const zoomLevel = window.devicePixelRatio;
+      setDivHeight(`${Math.min(60, Math.max(20, 73 / zoomLevel))}vh`);
+    };
+
+    window.addEventListener("resize", updateHeight);
+    updateHeight();
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const handleSearchChange = (e) => {
     let value = e.target.value;
@@ -143,12 +158,13 @@ export const CustomerList = ({
               <IoIosSearch size={20} />
             </p>
             <input
-              type="text"
+              type="search"
               name="search"
               placeholder="Name or Phone Number"
               value={searchQuery}
+              autoComplete="none"
               onChange={handleSearchChange}
-              className="focus:outline-none"
+              className="focus:outline-none w-full"
             />
           </div>
         </div>
@@ -179,12 +195,15 @@ export const CustomerList = ({
           <p>Amount</p>
         </div>
 
-        <div className="h-[17rem] xl:h-[21rem] 2xl:h-[25rem] mt-5 flex flex-col gap-8 overflow-y-auto">
+        <div
+          className=" mt-5 flex flex-col gap-8 overflow-y-auto"
+          style={{ height: divHeight }}
+        >
           {isCustomersLoading ? (
             <div className="w-full">
               <HorizontalLoader />
             </div>
-          ) : (
+          ) : customers?.length > 0 ? (
             customers?.map((customer, index) => {
               return (
                 <div
@@ -235,6 +254,13 @@ export const CustomerList = ({
                 </div>
               );
             })
+          ) : (
+            <div className="flex flex-col gap-5 justify-center items-center w-full h-full">
+              <p>
+                <FiUser size={100} className="text-gray-400" />
+              </p>
+              <p className="font-medium text-lg">No Customer Found</p>
+            </div>
           )}
         </div>
 

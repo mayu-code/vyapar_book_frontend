@@ -18,7 +18,7 @@ export const FailedReminders = ({ customer, setShow }) => {
   });
 
   const handleDownload = async () => {
-    if (reminders?.length <= 1) {
+    if (reminders?.length <= 0) {
       toast.error("No Reminders Available");
       return;
     }

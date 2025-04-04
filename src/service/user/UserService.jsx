@@ -9,6 +9,7 @@ import {
   downLoadRemaindersPdf,
   getAllCustomers,
   getCustomerById,
+  getCustomerByMobile,
   getCustomerRemainders,
   getCustomersOnDueDate,
   getCustomersTransaction,
@@ -189,6 +190,17 @@ export const getCustomersOnDueDateService = async () => {
   } catch (error) {
     console.log(error);
     return [];
+  }
+};
+
+export const getCustomerByMobileService = async (mobileNo) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await getCustomerByMobile(token, mobileNo);
+    return res?.data;
+  } catch (error) {
+    console.log(error);
+    return errorMessage;
   }
 };
 

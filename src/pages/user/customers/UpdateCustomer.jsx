@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UpdateCustomerForm } from "./UpdateCustomerForm";
 import { FaAngleLeft } from "react-icons/fa6";
 import { updateCustomerService } from "../../../service/user/UserService";
@@ -15,6 +15,19 @@ export const UpdateCustomer = ({
 }) => {
   const [isAddressOpen, setIsAddressOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
+  const [divHeight, setDivHeight] = useState("30vh");
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const zoomLevel = window.devicePixelRatio;
+      setDivHeight(`${Math.min(80, Math.max(20, 120 / zoomLevel))}vh`);
+    };
+
+    window.addEventListener("resize", updateHeight);
+    updateHeight();
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const [customerData, setCustomerData] = useState({
     id: customer?.id,
@@ -87,7 +100,10 @@ export const UpdateCustomer = ({
 
         <hr className="text-gray-300" />
 
-        <div className="h-[27rem] xl:h-[31rem] 2xl:h-[35rem] py-2 px-4 overflow-y-auto">
+        <div
+          className="py-2 px-4 overflow-y-auto"
+          style={{ height: divHeight }}
+        >
           <UpdateCustomerForm
             isOpen={isAddressOpen}
             setIsOpen={setIsAddressOpen}

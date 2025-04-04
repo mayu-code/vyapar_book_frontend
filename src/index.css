@@ -8,8 +8,8 @@
 @layer base {
   /* Customize scrollbar for all elements */
   ::-webkit-scrollbar {
-    width: 4px; /* Set width of scrollbar */
-    height: 4px; /* Set height for horizontal scrollbar */
+    width: 6px; /* Set width of scrollbar */
+    height: 6px; /* Set height for horizontal scrollbar */
   }
 
   ::-webkit-scrollbar-thumb {
