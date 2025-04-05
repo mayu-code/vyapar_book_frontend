@@ -79,13 +79,16 @@ export const Register = () => {
 
     setErrors({});
 
+    setIsLoading(true);
+
     const res = await registerUserService(registerData);
 
     console.log(res);
 
     if (res?.statusCode === 200) {
+      setIsLoading(false);
       toast.success(res?.message);
-      setIsLoading(true);
+
       setTimeout(() => {
         setRegisterData({
           name: "",
@@ -98,7 +101,8 @@ export const Register = () => {
         navigate("/login");
       }, 2000);
     } else {
-      toast.success(res?.message);
+      setIsLoading(false);
+      toast.error(res?.message);
     }
   };
 

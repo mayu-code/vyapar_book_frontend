@@ -102,10 +102,11 @@ export const Login = () => {
 
     console.log(loginData);
 
+    setIsLoading(true);
     const res = await loginUserService(loginData);
 
     if (res?.statusCode === 200) {
-      setIsLoading(true);
+      setIsLoading(false);
       storeToken(res?.token);
       toast.success(res?.message);
 
@@ -119,6 +120,7 @@ export const Login = () => {
         navigate("/user/customers");
       }, 2000);
     } else {
+      setIsLoading(false);
       toast.error(res?.message);
     }
   };
